@@ -18,6 +18,7 @@
    ============================== */
 
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg0)}
 
 :root{
   /* Background scale — each step clearly distinct */
@@ -61,7 +62,7 @@
   --line:rgba(0,0,0,.08);
   --line2:rgba(0,0,0,.15);
 
-  --urg-bg:rgba(255,64,87,.10);
+  --urg-bg:rgba(255,64,87,.18);
 
   --c1b:rgba(240,192,64,.14); --c1t:#8a6400;
   --c2b:rgba(232,112,64,.12); --c2t:#a04010;
@@ -125,11 +126,11 @@ body{
   border-color:var(--urg);border-left-color:var(--urg);
 }
 .dl.urg .dl-n{color:var(--urg)}
-.dl-n{font-size:32px;font-weight:600;text-align:center;line-height:1;color:var(--ct)}
-.dl-n small{font-size:11px;font-weight:400;display:block;margin-top:2px;color:var(--tx3)}
+.dl-n{font-size:20px;font-weight:400;text-align:center;line-height:1;color:var(--ct)}
+.dl-n span{font-size:11px;font-weight:400;color:var(--tx3);margin-left:2px}
 .dl-body{min-width:0}
-.dl-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dl-meta{font-size:11px;color:var(--tx3);margin-top:4px}
+.dl-title{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl-meta{font-size:13px;color:var(--tx3);margin-top:4px}
 
 /* ===== Today Tasks (checklist) ===== */
 .tts{display:flex;flex-direction:column;gap:4px}
@@ -431,7 +432,7 @@ body{
 
 /* FAB */
 .fab{
-  position:fixed;bottom:calc(68px + env(safe-area-inset-bottom));right:24px;
+  position:fixed;bottom:88px;right:24px;
   width:56px;height:56px;border-radius:50%;
   background:var(--tx1);color:var(--bg0);
   border:none;font-size:28px;font-weight:400;
@@ -523,6 +524,7 @@ body{
 
 <div class="s-bg" id="sBg" onclick="cS()"></div>
 <div class="s-pan" id="sPn">
+  <button onclick="cS()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:6px;background:var(--bg2);border:1px solid var(--line);color:var(--tx2);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;">×</button>
   <div class="s-t">設定</div>
   <div class="s-row"><div class="s-lbl">テーマ</div></div>
   <div class="s-ths" id="sTs"><div class="s-th" data-t="auto" onclick="sTh('auto')">自動</div><div class="s-th" data-t="dark" onclick="sTh('dark')">ダーク</div><div class="s-th" data-t="light" onclick="sTh('light')">ライト</div></div>
@@ -540,7 +542,7 @@ body{
 const CAT={1:'バイト',2:'大学',3:'制作',4:'プライベート',5:'活動'};
 const CC={1:'c1',2:'c2',3:'c3',4:'c4',5:'c5'}; // cat id → css class
 const DW=['日','月','火','水','木','金','土'];
-const T=new Date(2026,2,21);
+const T=new Date();
 
 let sel=new Date(T);
 let cMo=new Date(T.getFullYear(),T.getMonth(),1);
@@ -610,7 +612,7 @@ function rDl(){
   l.sort((a,b)=>new Date(a.due)-new Date(b.due));
   el.innerHTML=l.slice(0,6).map(t=>{
     const d=DB(T,PD(t.due)),u=d<=2;
-    return`<div class="dl ${CC[t.c]} ${u?'urg':''}"><div class="dl-n">${d}<small>${d===1?'day':'days'}</small></div><div class="dl-body"><div class="dl-title">${t.title}</div><div class="dl-meta">${FS(PD(t.due))} ${t.dt||''}</div></div><div class="tag">${CAT[t.c]}</div></div>`;
+    return`<div class="dl ${CC[t.c]} ${u?'urg':''}"><div class="dl-n">${d}<span>日</span></div><div class="dl-body"><div class="dl-title">${t.title}</div><div class="dl-meta">${FS(PD(t.due))} ${t.dt||''}</div></div><div class="tag">${CAT[t.c]}</div></div>`;
   }).join('');
   const w=document.getElementById('dlW');
   if(dlO&&!w.classList.contains('off')) w.style.maxHeight=w.scrollHeight+'px';
