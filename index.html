@@ -2,743 +2,548 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700&display=swap" rel="stylesheet">
   <style>
-    /* ===== DESIGN TOKENS ===== */
     :root {
       --bg0: #ffffff;
-      --bg1: #f5f5f5;
+      --bg1: #f2f2f2;
       --tx1: #000000;
-      --tx2: #666666;
-      --tx3: #999999;
-      --sep: rgba(0,0,0,.06);
-      --urg-bg: rgba(255,50,50,.12);
-      --fib-bg: #f0f0f0;
-      --c1: #d4a020;
-      --c2: #c86030;
-      --c3: #509830;
-      --c4: #2878b8;
-      --c5: #8048a0;
+      --tx2: #888888;
+      --urg-bg: rgba(255,48,48,.15);
     }
     [data-theme="dark"] {
       --bg0: #000000;
       --bg1: #1c1c1e;
       --tx1: #ffffff;
-      --tx2: #8e8e93;
-      --tx3: #636366;
-      --sep: rgba(255,255,255,.06);
-      --urg-bg: rgba(255,50,50,.18);
-      --fib-bg: #2c2c2e;
+      --tx2: #888888;
+      --urg-bg: rgba(255,48,48,.25);
     }
-    html { background: var(--bg0); }
+    .c1 { --cc: #d4a020; }
+    .c2 { --cc: #c86030; }
+    .c3 { --cc: #509830; }
+    .c4 { --cc: #2878b8; }
+    .c5 { --cc: #8048a0; }
+    [data-theme="dark"] .c1 { --cc: #f0b824; }
+    [data-theme="dark"] .c2 { --cc: #e47040; }
+    [data-theme="dark"] .c3 { --cc: #5cb038; }
+    [data-theme="dark"] .c4 { --cc: #3090d0; }
+    [data-theme="dark"] .c5 { --cc: #9458b8; }
 
-    /* ===== RESET ===== */
-    *, *::before, *::after {
-      margin: 0; padding: 0; box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      font-family: 'Zen Kaku Gothic New', sans-serif;
-      font-weight: 500;
-      font-size: 13px;
-      background: var(--bg0);
-      color: var(--tx1);
-      max-width: 430px;
-      margin: 0 auto;
-      min-height: 100vh;
-      overflow-x: hidden;
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html{background:var(--bg0)}
+    body{
+      background:var(--bg0);color:var(--tx1);
+      font-family:'Zen Kaku Gothic New',sans-serif;
+      font-weight:500;font-size:16px;
+      max-width:430px;margin:0 auto;min-height:100vh;
     }
 
-    /* ===== CATEGORY COLORS ===== */
-    .c1 { --cc: #d4a020; --ctint: rgba(212,160,32,.15); }
-    .c2 { --cc: #c86030; --ctint: rgba(200,96,48,.15); }
-    .c3 { --cc: #509830; --ctint: rgba(80,152,48,.15); }
-    .c4 { --cc: #2878b8; --ctint: rgba(40,120,184,.15); }
-    .c5 { --cc: #8048a0; --ctint: rgba(128,72,160,.15); }
-
-    /* ===== HEADER ===== */
-    .hdr {
-      position: sticky; top: 0; z-index: 40;
-      background: var(--bg0);
-      padding: 48px 24px 16px;
-      display: flex; justify-content: space-between; align-items: flex-end;
-    }
-    .hdr-date { font-size: 11px; font-weight: 500; color: var(--tx3); }
-    .hdr-title { font-size: 20px; font-weight: 700; color: var(--tx1); margin-top: 2px; }
-    .icon-btn {
-      width: 44px; height: 44px; border-radius: 16px;
-      background: var(--bg1); border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--tx2); flex-shrink: 0;
-    }
-    .icon-btn svg { width: 20px; height: 20px; }
-
-    /* ===== PAGES ===== */
-    .pages { position: relative; overflow: hidden; }
-    .page {
-      width: 100%;
-      transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-    }
-    .page:not(#p-today) { display: none; }
-
-    /* ===== SECTIONS ===== */
-    .sec { padding: 0 24px; margin-bottom: 24px; }
-    .sec-hdr {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 12px;
-    }
-    .sec-t { font-size: 16px; font-weight: 700; color: var(--tx1); }
-    .sec-link {
-      font-size: 13px; font-weight: 500; color: var(--tx3);
-      background: none; border: none; cursor: pointer; font-family: inherit;
-    }
-    .sec-toggle {
-      width: 32px; height: 32px; border-radius: 8px;
-      background: var(--bg1); border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--tx3); font-size: 13px; font-family: inherit;
+    button:active,.nv:active,.dl-card:active,.tk-card:active,.tt-row:active,.sd-cell:active{
+      transform:scale(0.96);opacity:0.8;transition:transform 0.1s,opacity 0.1s;
     }
 
-    /* ===== DEADLINE CARDS ===== */
-    .dl-card {
-      display: grid;
-      grid-template-columns: 60px 1fr auto;
-      align-items: center;
-      gap: 16px;
-      padding: 14px 16px;
-      background: var(--bg1);
-      border-radius: 16px;
-      border-left: 5px solid var(--cc);
-      margin-bottom: 8px;
-      cursor: pointer;
-      transition: transform 0.1s, opacity 0.1s;
+    .hdr{
+      position:sticky;top:0;z-index:40;background:var(--bg0);
+      padding:52px 24px 16px;
+      display:flex;justify-content:space-between;align-items:flex-end;
     }
-    [data-theme="light"] .dl-card { box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-    .dl-card.urg { background: var(--urg-bg); }
-    .dl-card.done-card { opacity: 0.5; }
-    .dl-num { text-align: center; }
-    .dl-days { font-size: 20px; font-weight: 700; color: var(--cc); display: block; line-height: 1; }
-    .dl-unit { font-size: 11px; font-weight: 500; color: var(--tx3); }
-    .dl-title { font-size: 13px; font-weight: 500; }
-    .dl-meta { font-size: 13px; font-weight: 700; color: var(--tx2); margin-top: 2px; }
-    .dl-time { opacity: 0.5; }
-    .dl-tag {
-      background: var(--cc); color: #fff; font-size: 11px; font-weight: 700;
-      padding: 4px 10px; border-radius: 8px; white-space: nowrap;
+    .hdr-left{flex:1}
+    .hdr-date{font-size:20px;font-weight:700;color:var(--tx1)}
+    .hdr-title{font-size:28px;font-weight:700;color:var(--tx1);margin-top:4px}
+    .icon-btn{
+      min-width:48px;min-height:48px;border-radius:16px;
+      background:var(--bg1);border:none;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;color:var(--tx2);
+      font-family:inherit;flex-shrink:0;
     }
-    .dl-detail {
-      grid-column: 1 / -1;
-      padding-top: 12px; border-top: 1px solid var(--sep); margin-top: 4px;
-      display: none;
-    }
-    .dl-card.expanded .dl-detail { display: block; }
-    .dl-card:active { transform: scale(0.97); opacity: 0.85; }
+    .icon-btn svg{width:22px;height:22px}
 
-    /* ===== DETAIL PANEL INSIDE CARD ===== */
-    .detail-input {
-      width: 100%; padding: 8px 12px; border-radius: 8px;
-      border: 1px solid var(--sep); background: var(--bg0);
-      color: var(--tx1); font-family: inherit; font-size: 13px;
-      font-weight: 500; margin-bottom: 8px;
+    .tab-wrap{position:relative}
+    .tab-page{width:100%}
+    .tab-page.hidden{display:none}
+
+    .sec{padding:0 24px;margin-bottom:24px}
+    .sec-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .sec-title{font-size:16px;font-weight:700}
+    .sec-link{
+      font-size:13px;font-weight:500;color:var(--tx2);
+      background:none;border:none;cursor:pointer;font-family:inherit;
+      min-height:48px;padding:0 8px;
     }
-    .detail-row { display: flex; gap: 8px; margin-bottom: 8px; }
-    .detail-row input {
-      flex: 1; padding: 8px 10px; border-radius: 8px;
-      border: 1px solid var(--sep); background: var(--bg0);
-      color: var(--tx1); font-family: inherit; font-size: 13px;
-      font-weight: 500;
-    }
-    .detail-cats { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
-    .detail-cat-chip {
-      padding: 4px 10px; border-radius: 8px; border: none; cursor: pointer;
-      font-size: 11px; font-weight: 700; color: #fff; opacity: 0.4;
-      font-family: inherit;
-    }
-    .detail-cat-chip.on { opacity: 1; }
-    .detail-memo {
-      width: 100%; padding: 8px 12px; border-radius: 8px;
-      border: 1px solid var(--sep); background: var(--bg0);
-      color: var(--tx1); font-family: inherit; font-size: 13px;
-      font-weight: 500; resize: none; margin-bottom: 8px;
-    }
-    .detail-actions { display: flex; gap: 8px; justify-content: flex-end; }
-    .del-btn {
-      padding: 6px 14px; border-radius: 8px; border: none;
-      background: rgba(255,50,50,.15); color: #ff3232;
-      font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
-    }
-    .save-btn {
-      padding: 6px 14px; border-radius: 8px; border: none;
-      background: var(--tx1); color: var(--bg0);
-      font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
-    }
-    .done-btn {
-      padding: 6px 14px; border-radius: 8px; border: none;
-      background: rgba(80,152,48,.15); color: #509830;
-      font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+    .sec-toggle{
+      min-width:48px;min-height:48px;border-radius:16px;
+      background:var(--bg1);border:none;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;color:var(--tx2);
     }
 
-    /* ===== TODAY TASK ROWS ===== */
-    .tt-list { padding: 0; }
-    .tt-row {
-      display: grid;
-      grid-template-columns: 32px 1fr auto;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--sep);
-      cursor: pointer;
-      transition: transform 0.1s, opacity 0.1s, background 0.15s;
-    }
-    .tt-row:last-child { border-bottom: none; }
-    .tt-row:active { transform: scale(0.97); opacity: 0.8; }
-    .tt-chk {
-      width: 26px; height: 26px; border-radius: 50%;
-      border: 2px solid var(--cc);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: all .15s;
-      flex-shrink: 0;
-    }
-    .tt-chk.done { background: var(--cc); border-color: var(--cc); }
-    .tt-chk.done::after {
-      content: '';
-      width: 8px; height: 5px;
-      border-left: 2px solid #fff;
-      border-bottom: 2px solid #fff;
-      transform: rotate(-45deg) translateY(-1px);
-      display: block;
-    }
-    .tt-title { font-size: 13px; font-weight: 500; }
-    .tt-title.done-txt { text-decoration: line-through; opacity: 0.5; }
-    .tt-sub { font-size: 11px; font-weight: 500; color: var(--tx3); margin-top: 2px; }
-    .tt-badge {
-      font-size: 13px; font-weight: 700;
-      background: var(--bg1); color: var(--tx2);
-      padding: 4px 10px; border-radius: 8px; white-space: nowrap;
-    }
-    .tt-badge.urg { background: var(--urg-bg); color: #ff3232; }
-    .tt-subs { padding: 0 0 8px 40px; }
-    .tt-subs.hide { display: none; }
-    .sub-row {
-      display: flex; align-items: center; gap: 8px; padding: 6px 0;
-      border-bottom: 1px solid var(--sep);
-    }
-    .sub-row:last-of-type { border-bottom: none; }
-    .sub-chk {
-      width: 20px; height: 20px; border-radius: 50%;
-      border: 2px solid var(--tx3);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; flex-shrink: 0; transition: all .15s;
-    }
-    .sub-chk.done { background: var(--tx3); border-color: var(--tx3); }
-    .sub-chk.done::after {
-      content: '';
-      width: 6px; height: 4px;
-      border-left: 2px solid #fff; border-bottom: 2px solid #fff;
-      transform: rotate(-45deg) translateY(-1px);
-      display: block;
-    }
-    .sub-title { font-size: 13px; font-weight: 500; flex: 1; }
-    .sub-title.done-txt { text-decoration: line-through; opacity: 0.5; }
-    .add-sub-btn {
-      font-size: 13px; font-weight: 500; color: var(--tx3);
-      background: none; border: none; cursor: pointer;
-      font-family: inherit; padding: 6px 0; display: block; width: 100%;
-      text-align: left;
-    }
-    .prog {
-      font-size: 11px; font-weight: 700; color: var(--tx3);
-      background: var(--bg1); padding: 2px 6px; border-radius: 6px;
-      margin-left: 4px;
+    .cat-tag{
+      background:var(--cc);color:#fff;font-size:13px;font-weight:700;
+      padding:6px 12px;border-radius:8px;white-space:nowrap;display:inline-block;
     }
 
-    /* ===== SCHEDULE (DAY STRIP) ===== */
-    .day-strip-wrap {
-      overflow-x: auto; scrollbar-width: none;
-      padding: 0 24px 16px;
+    .dl-list{display:flex;flex-direction:column;gap:8px}
+    .dl-card{
+      background:var(--bg1);border-radius:16px;
+      border-left:5px solid var(--cc);overflow:hidden;cursor:pointer;
     }
-    .day-strip-wrap::-webkit-scrollbar { display: none; }
-    .day-strip { display: flex; gap: 8px; }
-    .sd {
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
-      min-width: 44px; padding: 8px 6px; border-radius: 16px;
-      cursor: pointer; border: none; background: transparent;
-      font-family: inherit; transition: transform 0.1s, opacity 0.1s;
+    .dl-card.urg{background:var(--urg-bg)}
+    .dl-main{
+      display:grid;grid-template-columns:64px 1fr auto;
+      align-items:center;gap:16px;
+      padding:16px 16px 16px 12px;
     }
-    .sd:active { transform: scale(0.93); opacity: 0.7; }
-    .sd-dow { font-size: 11px; font-weight: 500; color: var(--tx3); }
-    .sd-num { font-size: 16px; font-weight: 700; color: var(--tx2); }
-    .sd.sel { background: var(--tx1); }
-    .sd.sel .sd-dow { color: var(--bg1); opacity: 0.7; }
-    .sd.sel .sd-num { color: var(--bg0); }
-    .sd.today .sd-num { color: var(--tx1); }
-    .sd.today.sel .sd-num { color: var(--bg0); }
-    .sd-dot {
-      width: 5px; height: 5px; border-radius: 50%; background: var(--tx3);
-      margin-top: 2px; visibility: hidden;
+    .dl-num{text-align:center}
+    .dl-days{display:block;font-size:28px;font-weight:700;color:var(--cc);line-height:1.1}
+    .dl-unit{font-size:13px;font-weight:500;color:var(--tx2)}
+    .dl-title{font-size:16px;font-weight:700;margin-bottom:4px}
+    .dl-meta{font-size:16px;font-weight:500;color:var(--tx2)}
+    .dl-time{opacity:0.6}
+    .dl-detail{
+      max-height:0;overflow:hidden;
+      transition:max-height 0.2s ease-out,padding 0.2s ease-out;
+      padding:0 16px;
     }
-    .sd-dot.vis { visibility: visible; }
+    .dl-detail.open{max-height:700px;padding:0 16px 16px}
+    .detail-sep{height:1px;background:rgba(128,128,128,.15);margin-bottom:16px}
 
-    /* ===== TIMELINE ===== */
-    .tl { position: relative; padding-left: 24px; }
-    .tl::before {
-      content: ''; position: absolute; left: 8px; top: 0; bottom: 0;
-      width: 1px; background: var(--sep);
+    .detail-input,.detail-date,.detail-time{
+      width:100%;background:var(--bg0);border:none;border-radius:16px;
+      padding:0 16px;height:48px;
+      font-size:16px;font-weight:500;color:var(--tx1);font-family:inherit;
+      margin-bottom:8px;outline:none;
     }
-    .tb { position: relative; padding: 2px 0 16px; }
-    .tb::before {
-      content: ''; position: absolute; left: -20px; top: 12px;
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--bg1); border: 2px solid var(--sep);
+    .detail-textarea{
+      width:100%;background:var(--bg0);border:none;border-radius:16px;
+      padding:12px 16px;
+      font-size:16px;font-weight:500;color:var(--tx1);font-family:inherit;
+      margin-bottom:8px;outline:none;resize:none;
     }
-    .tb-time { font-size: 13px; font-weight: 500; color: var(--tx3); margin-bottom: 6px; }
-    .tb-ev {
-      display: grid; grid-template-columns: 8px 1fr auto;
-      align-items: center; gap: 12px;
-      padding: 12px 16px; border-radius: 16px;
-      background: var(--ctint);
-      border-left: 4px solid var(--cc);
-    }
-    .tb-dot { width: 8px; height: 8px; border-radius: 4px; background: var(--cc); }
-    .tb-ev-body { overflow: hidden; }
-    .tb-ev-t { font-size: 13px; font-weight: 700; color: var(--tx1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .tb-ev-sub { font-size: 11px; font-weight: 500; color: var(--tx2); margin-top: 2px; }
-    .tb-dur { font-size: 11px; font-weight: 700; color: var(--cc); white-space: nowrap; }
-    .tl-empty { font-size: 13px; font-weight: 500; color: var(--tx3); padding: 16px 0; }
-    .tl-deadline {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 16px; border-radius: 16px;
-      background: var(--urg-bg); border-left: 4px solid var(--cc);
-    }
-    .tl-deadline .td-ico { font-size: 16px; }
-    .tl-deadline .td-t { font-size: 13px; font-weight: 700; }
-    .tl-deadline .td-s { font-size: 11px; font-weight: 500; color: var(--tx2); }
+    .detail-row{display:flex;gap:8px}
+    .detail-row .detail-date,.detail-row .detail-time{flex:1}
 
-    /* ===== FILTER CHIPS ===== */
-    .filter-row {
-      display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
-      padding: 0 24px 16px;
-    }
-    .filter-row::-webkit-scrollbar { display: none; }
-    .filter-chip {
-      height: 36px; padding: 0 16px; border-radius: 24px;
-      font-size: 13px; font-weight: 500; color: var(--tx3);
-      background: transparent; border: none; cursor: pointer; white-space: nowrap;
-      font-family: inherit; transition: transform 0.1s;
-    }
-    .filter-chip:active { transform: scale(0.95); }
-    .filter-chip.on { background: var(--bg1); color: var(--tx1); font-weight: 700; }
+    .urg-slider-row{margin-bottom:8px}
+    .urg-slider-label{font-size:13px;font-weight:500;color:var(--tx2);margin-bottom:4px;display:flex;justify-content:space-between}
+    input[type="range"]{width:100%;accent-color:var(--tx1);cursor:pointer;margin-bottom:8px}
 
-    /* ===== TASK CARDS (tasks tab) ===== */
-    .tk-card {
-      display: grid; grid-template-columns: 32px 1fr auto;
-      align-items: center; gap: 8px;
-      padding: 14px 16px; background: var(--bg1);
-      border-radius: 16px; border-left: 5px solid var(--cc);
-      margin-bottom: 8px; cursor: pointer;
-      transition: transform 0.1s, opacity 0.1s;
-    }
-    [data-theme="light"] .tk-card { box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-    .tk-card:active { transform: scale(0.97); opacity: 0.85; }
-    .tk-card.urg { background: var(--urg-bg); }
-    .tk-card.done-card { opacity: 0.45; }
-    .tk-chk {
-      width: 26px; height: 26px; border-radius: 50%;
-      border: 2px solid var(--cc);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: all .15s; flex-shrink: 0;
-    }
-    .tk-chk.done { background: var(--cc); border-color: var(--cc); }
-    .tk-chk.done::after {
-      content: '';
-      width: 8px; height: 5px;
-      border-left: 2px solid #fff; border-bottom: 2px solid #fff;
-      transform: rotate(-45deg) translateY(-1px);
-      display: block;
-    }
-    .tk-title { font-size: 13px; font-weight: 500; }
-    .tk-title.done-txt { text-decoration: line-through; opacity: 0.5; }
-    .tk-sub { font-size: 11px; font-weight: 500; color: var(--tx3); margin-top: 2px; }
-    .tk-badge {
-      font-size: 13px; font-weight: 700;
-      background: var(--bg0); color: var(--tx2);
-      padding: 4px 10px; border-radius: 8px; white-space: nowrap;
-    }
-    .tk-badge.urg { background: rgba(255,50,50,.15); color: #ff3232; }
-    .tk-detail {
-      grid-column: 1 / -1;
-      padding-top: 12px; border-top: 1px solid var(--sep); margin-top: 4px;
-      display: none;
-    }
-    .tk-card.expanded .tk-detail { display: block; }
-    .tk-subs { margin-top: 8px; padding-left: 0; }
-    .tk-sub-row {
-      display: flex; align-items: center; gap: 8px; padding: 6px 0;
-      border-bottom: 1px solid var(--sep);
-    }
-    .tk-sub-row:last-of-type { border-bottom: none; }
-    .tk-sub-chk {
-      width: 20px; height: 20px; border-radius: 50%;
-      border: 2px solid var(--tx3);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; flex-shrink: 0; transition: all .15s;
-    }
-    .tk-sub-chk.done { background: var(--tx3); border-color: var(--tx3); }
-    .tk-sub-chk.done::after {
-      content: ''; width: 6px; height: 4px;
-      border-left: 2px solid #fff; border-bottom: 2px solid #fff;
-      transform: rotate(-45deg) translateY(-1px); display: block;
-    }
-    .tk-sub-title { font-size: 13px; font-weight: 500; flex: 1; }
-    .tk-sub-title.done-txt { text-decoration: line-through; opacity: 0.5; }
-    .tk-add-sub {
-      font-size: 13px; font-weight: 500; color: var(--tx3);
-      background: none; border: none; cursor: pointer; font-family: inherit;
-      padding: 8px 0; display: block; width: 100%; text-align: left;
-    }
-    .tk-done-section { margin-top: 16px; }
-    .tk-done-hdr {
-      font-size: 11px; font-weight: 700; color: var(--tx3);
-      text-transform: uppercase; letter-spacing: 0.05em;
-      margin-bottom: 8px; padding: 0 16px;
+    .del-btn{
+      width:100%;height:48px;border-radius:16px;
+      background:none;border:none;cursor:pointer;
+      font-size:16px;font-weight:700;color:#ff3030;font-family:inherit;
     }
 
-    /* ===== BAITO TAB ===== */
-    .bt-card {
-      background: var(--bg1); border-radius: 16px;
-      padding: 16px; margin-bottom: 8px;
+    .cat-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+    .cat-chip{
+      height:48px;padding:0 16px;border-radius:16px;
+      background:var(--cc);color:#fff;font-size:13px;font-weight:700;
+      border:3px solid transparent;cursor:pointer;font-family:inherit;
+      display:flex;align-items:center;
     }
-    [data-theme="light"] .bt-card { box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-    .bt-card-hdr {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 12px;
+    .cat-chip.sel{border-color:var(--tx1)}
+
+    .tt-row{
+      display:grid;grid-template-columns:40px 1fr auto;
+      align-items:center;gap:8px;
+      padding:14px 24px;
+      border-bottom:1px solid rgba(128,128,128,.12);
+      cursor:pointer;
     }
-    .bt-card-t { font-size: 16px; font-weight: 700; }
-    .bt-shift-row {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 0; border-bottom: 1px solid var(--sep);
+    .tt-chk{
+      width:28px;height:28px;border-radius:50%;
+      border:2.5px solid var(--cc);
+      flex-shrink:0;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      transition:background 0.15s,border-color 0.15s;
     }
-    .bt-shift-row:last-child { border-bottom: none; }
-    .bt-dow {
-      width: 32px; font-size: 13px; font-weight: 700; color: var(--tx2);
+    .tt-chk.done{background:var(--cc);border-color:var(--cc)}
+    .tt-chk.done::after{
+      content:'';display:block;
+      width:9px;height:6px;
+      border-left:2.5px solid #fff;border-bottom:2.5px solid #fff;
+      transform:rotate(-45deg) translateY(-1px);
     }
-    .bt-time { font-size: 13px; font-weight: 500; flex: 1; }
-    .bt-month-nav {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 24px; margin-bottom: 16px;
+    .tt-title{font-size:16px;font-weight:500}
+    .tt-sub{font-size:13px;font-weight:500;color:var(--tx2);margin-top:2px}
+    .tt-badge{
+      font-size:16px;font-weight:700;
+      background:var(--bg1);color:var(--tx2);
+      padding:6px 12px;border-radius:8px;white-space:nowrap;flex-shrink:0;
     }
-    .bt-month-t { font-size: 16px; font-weight: 700; }
-    .bt-nav-btn {
-      width: 36px; height: 36px; border-radius: 8px;
-      background: var(--bg1); border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--tx2); font-size: 18px; font-family: inherit;
+    .tt-badge.urg{background:var(--urg-bg);color:#ff3030}
+    .tt-badge.over{background:#ff3030;color:#fff}
+    .prog{font-size:13px;font-weight:500;color:var(--tx2);margin-left:4px}
+
+    .tt-subs{
+      max-height:0;overflow:hidden;
+      transition:max-height 0.2s ease-out;
+      padding:0 24px;
+    }
+    .tt-subs.open{max-height:600px;padding-bottom:8px}
+    .sub-row{
+      display:flex;align-items:center;gap:8px;
+      padding:8px 0;border-bottom:1px solid rgba(128,128,128,.08);
+    }
+    .sub-chk{
+      width:20px;height:20px;border-radius:50%;
+      border:2px solid var(--tx2);flex-shrink:0;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      transition:background 0.15s;
+    }
+    .sub-chk.done{background:var(--tx2)}
+    .sub-chk.done::after{
+      content:'';display:block;width:6px;height:4px;
+      border-left:2px solid var(--bg0);border-bottom:2px solid var(--bg0);
+      transform:rotate(-45deg) translateY(-1px);
+    }
+    .sub-title{font-size:13px;font-weight:500;flex:1}
+    .sub-title.done{text-decoration:line-through;color:var(--tx2)}
+    .add-sub-btn{
+      font-size:13px;font-weight:500;color:var(--tx2);
+      background:none;border:none;cursor:pointer;
+      padding:8px 0;text-align:left;font-family:inherit;
+      min-height:48px;width:100%;
     }
 
-    /* Calendar */
-    .bt-cal { padding: 0 24px; margin-bottom: 16px; }
-    .bt-cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
-    .bt-cal-dow { text-align: center; font-size: 11px; font-weight: 700; color: var(--tx3); padding: 4px 0; }
-    .bt-cal-day {
-      text-align: center; font-size: 13px; font-weight: 500;
-      padding: 6px 2px; border-radius: 8px; cursor: pointer;
-      color: var(--tx2); position: relative;
-      transition: background 0.1s;
+    .tt-detail{
+      max-height:0;overflow:hidden;
+      transition:max-height 0.2s ease-out;
+      padding:0 24px;
+      background:var(--bg0);
     }
-    .bt-cal-day.today { color: var(--tx1); font-weight: 700; }
-    .bt-cal-day.has-shift { color: #d4a020; font-weight: 700; }
-    .bt-cal-day.off-ov { color: var(--tx3); text-decoration: line-through; }
-    .bt-cal-day:active { background: var(--bg1); }
-    .bt-cal-day.sel { background: var(--tx1); color: var(--bg0) !important; border-radius: 8px; }
+    .tt-detail.open{max-height:800px;padding:8px 24px 16px}
 
-    /* Shift dot */
-    .bt-cal-dot {
-      width: 4px; height: 4px; border-radius: 50%; background: #d4a020;
-      margin: 1px auto 0;
+    .done-hdr{
+      padding:16px 24px;font-size:13px;font-weight:500;color:var(--tx2);
+      cursor:pointer;display:flex;align-items:center;gap:8px;min-height:48px;
     }
+    .done-list{max-height:0;overflow:hidden;transition:max-height 0.2s ease-out}
+    .done-list.open{max-height:3000px}
+    .done-row .tt-title{text-decoration:line-through}
+    .done-row .tt-chk{opacity:0.5}
 
-    /* Month summary */
-    .bt-summary {
-      background: var(--bg1); border-radius: 16px; padding: 16px;
-      margin: 0 24px 16px; display: grid; grid-template-columns: 1fr 1fr;
-      gap: 8px;
+    .strip-wrap{overflow-x:auto;scrollbar-width:none;padding:0 24px 16px}
+    .strip-wrap::-webkit-scrollbar{display:none}
+    .strip{display:flex;gap:8px;padding:4px 0}
+    .sd-cell{
+      min-width:56px;flex-shrink:0;
+      display:flex;flex-direction:column;align-items:center;
+      padding:10px 4px 12px;border-radius:16px;cursor:pointer;
+      transition:background 0.2s ease-out;
     }
-    .bt-sum-item { text-align: center; }
-    .bt-sum-val { font-size: 20px; font-weight: 700; }
-    .bt-sum-lbl { font-size: 11px; font-weight: 500; color: var(--tx3); margin-top: 2px; }
+    .sd-cell.today-c{background:#000}
+    [data-theme="dark"] .sd-cell.today-c{background:#fff}
+    .sd-cell.sel-c{background:var(--bg1)}
+    .sd-dow{font-size:13px;font-weight:500;color:var(--tx2)}
+    .sd-num{font-size:16px;font-weight:500;color:var(--tx1);margin-top:2px}
+    .sd-cell.today-c .sd-dow,.sd-cell.today-c .sd-num{color:#fff;font-weight:700}
+    [data-theme="dark"] .sd-cell.today-c .sd-dow,[data-theme="dark"] .sd-cell.today-c .sd-num{color:#000}
+    .sd-dots{display:flex;gap:3px;margin-top:4px;height:6px;align-items:center}
+    .sd-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 
-    /* Override panel */
-    .bt-ov-panel {
-      background: var(--bg1); border-radius: 16px; padding: 16px;
-      margin: 0 24px 16px;
+    .tl{position:relative;padding:0 24px}
+    .tl::before{content:'';position:absolute;left:32px;top:0;bottom:0;width:1px;background:rgba(128,128,128,.15)}
+    .tb{position:relative;padding:0 0 16px 24px}
+    .tb-time{font-size:13px;font-weight:500;color:var(--tx2);margin-bottom:6px}
+    .tb-ev{
+      display:grid;grid-template-columns:8px 1fr auto;
+      align-items:center;gap:12px;
+      padding:12px 16px;background:var(--bg1);border-radius:16px;
     }
-    .bt-ov-t { font-size: 13px; font-weight: 700; margin-bottom: 12px; }
-    .bt-ov-btns { display: flex; gap: 8px; }
-    .bt-ov-btn {
-      flex: 1; padding: 10px; border-radius: 8px; border: none;
-      font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
-      background: var(--bg0); color: var(--tx2);
-    }
-    .bt-ov-btn.on { background: var(--tx1); color: var(--bg0); }
-    .bt-ov-time { display: flex; gap: 8px; margin-top: 12px; }
-    .bt-ov-time input {
-      flex: 1; padding: 8px; border-radius: 8px;
-      border: 1px solid var(--sep); background: var(--bg0);
-      color: var(--tx1); font-family: inherit; font-size: 13px;
-    }
+    .tb-dot{width:8px;height:8px;border-radius:4px;background:var(--cc);flex-shrink:0}
+    .tb-ev-t{font-size:13px;font-weight:500}
+    .tb-ev-sub{font-size:13px;font-weight:500;color:var(--tx2);margin-top:2px}
+    .tb-dur{font-size:13px;font-weight:500;color:var(--tx2);white-space:nowrap}
+    .tl-empty{font-size:16px;font-weight:500;color:var(--tx2);padding:16px 0;text-align:center}
 
-    /* ===== TOGGLE SWITCH ===== */
-    .toggle-sw {
-      position: relative; width: 51px; height: 31px;
-      background: var(--tx3); border-radius: 16px;
-      cursor: pointer; transition: background .2s; flex-shrink: 0;
+    .filter-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:8px 24px 16px}
+    .filter-row::-webkit-scrollbar{display:none}
+    .filter-chip{
+      height:48px;padding:0 20px;border-radius:16px;
+      font-size:13px;font-weight:500;color:var(--tx2);
+      background:transparent;border:none;cursor:pointer;
+      white-space:nowrap;font-family:inherit;flex-shrink:0;
     }
-    .toggle-sw.on { background: #d4a020; }
-    .toggle-sw::after {
-      content: ''; position: absolute; top: 2px; left: 2px;
-      width: 27px; height: 27px; border-radius: 50%; background: #fff;
-      transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.25);
-    }
-    .toggle-sw.on::after { transform: translateX(20px); }
+    .filter-chip.on{background:var(--bg1);color:var(--tx1);font-weight:700}
 
-    /* ===== FLOATING INPUT BAR ===== */
-    .fib-wrap {
-      position: fixed;
-      bottom: calc(60px + env(safe-area-inset-bottom));
-      left: 50%; transform: translateX(-50%);
-      width: 100%; max-width: 430px;
-      z-index: 100;
-      padding: 0 24px 8px;
+    .tk-card{
+      background:var(--bg1);border-radius:16px;
+      border-left:5px solid var(--cc);
+      margin:0 24px 8px;overflow:hidden;cursor:pointer;
     }
-    .fib-detail {
-      background: var(--bg1);
-      border-radius: 16px 16px 0 0;
-      padding: 16px;
-      display: none;
-      border: 1px solid var(--sep);
-      border-bottom: none;
+    .tk-main{
+      display:grid;grid-template-columns:40px 1fr auto;
+      align-items:center;gap:8px;
+      padding:14px 16px 14px 12px;
     }
-    .fib-detail.open { display: block; }
-    .fib {
-      height: 48px;
-      background: var(--fib-bg);
-      border-radius: 24px;
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      gap: 8px;
+    .tk-subs{
+      max-height:0;overflow:hidden;
+      transition:max-height 0.2s ease-out;
+      padding:0 12px;
     }
-    .fib-plus {
-      width: 28px; height: 28px; border-radius: 50%;
-      background: var(--tx1); color: var(--bg0);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; font-size: 20px; font-weight: 300; line-height: 1;
-      cursor: pointer; border: none; font-family: inherit;
+    .tk-subs.open{max-height:600px;padding-bottom:8px}
+    .tk-detail{
+      max-height:0;overflow:hidden;
+      transition:max-height 0.2s ease-out;
+      padding:0 12px;
     }
-    #fibInput {
-      flex: 1; background: transparent; border: none;
-      font-family: inherit; font-size: 13px; font-weight: 500;
-      color: var(--tx1); outline: none;
-    }
-    #fibInput::placeholder { color: var(--tx3); }
-    .fib-cat-row { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 12px; }
-    .fib-cat-row::-webkit-scrollbar { display: none; }
-    .fib-cat-chip {
-      padding: 6px 12px; border-radius: 8px; border: none; cursor: pointer;
-      font-size: 11px; font-weight: 700; color: #fff; opacity: 0.4;
-      font-family: inherit; white-space: nowrap;
-    }
-    .fib-cat-chip.on { opacity: 1; }
-    .fib-date-row { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
-    .fib-date-btn {
-      padding: 6px 12px; border-radius: 8px; border: none; cursor: pointer;
-      font-size: 13px; font-weight: 500; background: var(--bg0); color: var(--tx2);
-      font-family: inherit;
-    }
-    .fib-date-btn.on { background: var(--tx1); color: var(--bg0); font-weight: 700; }
-    #fibDatePicker {
-      padding: 6px 12px; border-radius: 8px; border: 1px solid var(--sep);
-      background: var(--bg0); color: var(--tx1); font-family: inherit;
-      font-size: 13px; font-weight: 500;
-    }
-    .fib-time-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
-    .fib-time-label { font-size: 13px; font-weight: 500; color: var(--tx2); }
-    #fibTime {
-      padding: 6px 12px; border-radius: 8px; border: 1px solid var(--sep);
-      background: var(--bg0); color: var(--tx1); font-family: inherit; font-size: 13px;
-    }
-    .fib-type-row { display: flex; gap: 8px; margin-bottom: 12px; }
-    .fib-type-btn {
-      flex: 1; padding: 8px; border-radius: 8px; border: none;
-      font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit;
-      background: var(--bg0); color: var(--tx2);
-    }
-    .fib-type-btn.on { background: var(--tx1); color: var(--bg0); font-weight: 700; }
-    .fib-submit {
-      width: 100%; padding: 12px; border-radius: 16px; border: none;
-      background: var(--tx1); color: var(--bg0);
-      font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit;
-    }
+    .tk-detail.open{max-height:800px;padding:0 12px 16px}
 
-    /* ===== NAV ===== */
-    .nav {
-      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 100%; max-width: 430px;
-      display: flex; justify-content: space-around; align-items: center;
-      background: var(--bg0);
-      border-top: 1px solid var(--sep);
-      padding: 4px 0; padding-bottom: calc(4px + env(safe-area-inset-bottom));
-      z-index: 50;
+    .baito-card{background:var(--bg1);border-radius:16px;margin:0 24px 16px;padding:16px}
+    .shift-row{
+      display:grid;grid-template-columns:40px 1fr 60px;
+      align-items:center;gap:8px;
+      padding:8px 0;border-bottom:1px solid rgba(128,128,128,.12);
     }
-    .nv {
-      display: flex; flex-direction: column; align-items: center; gap: 3px;
-      min-width: 44px; min-height: 44px; justify-content: center;
-      font-size: 11px; font-weight: 500; color: var(--tx3);
-      background: none; border: none; cursor: pointer; font-family: inherit;
-      padding: 4px 20px; transition: transform 0.1s;
+    .shift-row:last-child{border-bottom:none}
+    .shift-dow{font-size:16px;font-weight:700}
+    .shift-time{font-size:13px;font-weight:500;color:var(--tx2)}
+    .tog-sw{
+      position:relative;width:51px;height:31px;
+      background:var(--tx2);border-radius:16px;
+      cursor:pointer;transition:background 0.2s;flex-shrink:0;border:none;
+      justify-self:end;
     }
-    .nv:active { transform: scale(0.9); }
-    .nv.on { color: var(--tx1); font-weight: 700; }
-    .nv svg { width: 22px; height: 22px; }
-    .ico-on { display: none; }
-    .nv.on .ico-off { display: none; }
-    .nv.on .ico-on { display: block; }
+    .tog-sw.on{background:#d4a020}
+    .tog-sw::after{
+      content:'';position:absolute;top:2px;left:2px;
+      width:27px;height:27px;border-radius:50%;
+      background:#fff;transition:transform 0.2s;
+      box-shadow:0 1px 3px rgba(0,0,0,.25);
+    }
+    .tog-sw.on::after{transform:translateX(20px)}
 
-    /* ===== SETTINGS PANEL ===== */
-    .s-bg {
-      position: fixed; inset: 0; background: rgba(0,0,0,.4);
-      z-index: 300; opacity: 0; pointer-events: none; transition: opacity .3s;
+    .baito-stats{
+      background:var(--bg1);border-radius:16px;
+      margin:0 24px 16px;padding:16px;
+      display:grid;grid-template-columns:1fr 1fr;
+      gap:16px;text-align:center;
     }
-    .s-bg.open { opacity: 1; pointer-events: auto; }
-    .s-pan {
-      position: fixed; top: 0; right: -300px; width: 280px; height: 100%;
-      background: var(--bg0); border-left: 1px solid var(--sep);
-      z-index: 301; transition: right .3s ease-out;
-      padding: 56px 24px 24px; overflow-y: auto;
-    }
-    .s-pan.open { right: 0; }
-    .s-close {
-      position: absolute; top: 16px; right: 16px;
-      width: 32px; height: 32px; border-radius: 16px;
-      background: var(--bg1); border: none; cursor: pointer;
-      font-size: 18px; display: flex; align-items: center; justify-content: center;
-      color: var(--tx2); line-height: 1;
-    }
-    .s-title { font-size: 20px; font-weight: 700; margin-bottom: 32px; }
-    .s-section { margin-bottom: 24px; }
-    .s-label { font-size: 13px; font-weight: 500; color: var(--tx2); margin-bottom: 8px; }
-    .s-row { display: flex; justify-content: space-between; align-items: center; }
-    .s-theme-btns { display: flex; gap: 8px; }
-    .s-theme-btns button {
-      flex: 1; height: 44px; border-radius: 16px; border: none;
-      background: var(--bg1); color: var(--tx2);
-      font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit;
-    }
-    .s-theme-btns button.on { background: var(--tx1); color: var(--bg0); font-weight: 700; }
-    input[type="range"] { width: 100%; margin-top: 8px; accent-color: var(--tx1); }
-    .s-data-btns { display: flex; flex-direction: column; gap: 8px; }
-    .s-data-btn {
-      width: 100%; padding: 12px; border-radius: 16px; border: none;
-      background: var(--bg1); color: var(--tx2);
-      font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit;
-      text-align: left;
-    }
-    .s-data-btn.danger { background: rgba(255,50,50,.12); color: #ff3232; }
+    .stat-num{font-size:28px;font-weight:700}
+    .stat-lbl{font-size:13px;font-weight:500;color:var(--tx2);margin-top:4px}
 
-    /* ===== MISC ===== */
-    .spacer { height: 140px; }
-    .empty-state {
-      font-size: 13px; font-weight: 500; color: var(--tx3);
-      text-align: center; padding: 24px 0;
+    .cal-nav{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 24px;margin-bottom:16px;
     }
-    .sec-div { height: 1px; background: var(--sep); margin: 0 24px 24px; }
-
-    /* ===== ANIMATIONS ===== */
-    @keyframes chkPop {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.3); }
-      100% { transform: scale(1); }
+    .cal-nav-btn{
+      min-width:48px;min-height:48px;background:var(--bg1);
+      border:none;border-radius:16px;cursor:pointer;
+      font-size:16px;font-weight:700;color:var(--tx1);
+      display:flex;align-items:center;justify-content:center;font-family:inherit;
+    }
+    .cal-month{font-size:16px;font-weight:700}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:0 16px 16px}
+    .cal-dow{text-align:center;font-size:13px;font-weight:500;color:var(--tx2);padding:8px 0}
+    .cal-day{
+      aspect-ratio:1;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      border-radius:16px;cursor:pointer;font-size:16px;font-weight:500;
+      position:relative;min-height:40px;
+    }
+    .cal-day.today-d{background:#000;color:#fff;font-weight:700}
+    [data-theme="dark"] .cal-day.today-d{background:#fff;color:#000}
+    .cal-day.sel-d{background:var(--bg1)}
+    .cal-day.other-mo{opacity:0.3}
+    .cal-day-dot{
+      position:absolute;bottom:4px;
+      width:6px;height:6px;border-radius:50%;background:#d4a020;
+    }
+    .baito-action-area{background:var(--bg1);border-radius:16px;margin:0 24px 16px;padding:16px}
+    .baito-action-title{font-size:16px;font-weight:700;margin-bottom:12px}
+    .baito-action-btns{display:flex;gap:8px;margin-bottom:8px}
+    .baito-act-btn{
+      flex:1;height:48px;border-radius:16px;
+      background:var(--bg0);border:none;cursor:pointer;
+      font-size:13px;font-weight:700;color:var(--tx2);font-family:inherit;
+    }
+    .baito-act-btn.on{background:var(--tx1);color:var(--bg0)}
+    .time-inputs{display:flex;gap:8px;margin-top:8px}
+    .time-inp{
+      flex:1;height:48px;border-radius:16px;
+      background:var(--bg0);border:none;
+      font-size:16px;font-weight:500;color:var(--tx1);
+      padding:0 16px;font-family:inherit;
     }
 
-    /* ===== ACTIVE STATES ===== */
-    button:active { opacity: 0.7; }
-
-    /* ===== SCROLLBAR ===== */
-    ::-webkit-scrollbar { display: none; }
-    * { scrollbar-width: none; }
-
-    /* ===== DONE TASK SECTION ===== */
-    .done-section-toggle {
-      font-size: 13px; font-weight: 500; color: var(--tx3);
-      background: none; border: none; cursor: pointer; font-family: inherit;
-      padding: 8px 0; display: flex; align-items: center; gap: 4px;
+    .fib-outer{
+      position:fixed;left:0;right:0;
+      bottom:calc(72px + env(safe-area-inset-bottom));
+      z-index:100;padding:0 16px;
     }
+    .fib-panel{
+      background:var(--bg1);border-radius:16px 16px 0 0;
+      padding:16px;
+      transform:translateY(100%);
+      transition:transform 0.2s ease-out,opacity 0.2s ease-out;
+      opacity:0;pointer-events:none;
+    }
+    .fib-panel.open{transform:translateY(0);opacity:1;pointer-events:auto}
+    .fib-bar{
+      height:52px;background:var(--bg1);
+      border-radius:16px;
+      display:flex;align-items:center;gap:12px;
+      padding:0 16px;cursor:pointer;position:relative;z-index:1;
+    }
+    .fib-plus{color:var(--tx2);display:flex;align-items:center;flex-shrink:0}
+    .fib-plus svg{width:20px;height:20px}
+    #fibInput{
+      flex:1;background:none;border:none;outline:none;
+      font-size:16px;font-weight:500;color:var(--tx1);font-family:inherit;
+    }
+    #fibInput::placeholder{color:var(--tx2)}
+    .fib-bd{position:fixed;inset:0;z-index:90;display:none}
+    .fib-bd.active{display:block}
+
+    .fib-cat-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:8px}
+    .fib-cat-chips::-webkit-scrollbar{display:none}
+    .fib-date-btns{display:flex;gap:8px;margin-bottom:8px;overflow-x:auto;scrollbar-width:none}
+    .fib-date-btns::-webkit-scrollbar{display:none}
+    .fib-date-btn{
+      height:48px;padding:0 16px;border-radius:16px;
+      background:var(--bg0);border:none;cursor:pointer;
+      font-size:13px;font-weight:700;color:var(--tx2);
+      font-family:inherit;flex-shrink:0;
+    }
+    .fib-date-btn.on{background:var(--tx1);color:var(--bg0)}
+    .fib-time-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    .fib-time-label{font-size:13px;font-weight:500;color:var(--tx2);white-space:nowrap}
+    .fib-time-input{
+      flex:1;height:48px;border-radius:16px;
+      background:var(--bg0);border:none;
+      font-size:16px;font-weight:500;color:var(--tx1);
+      padding:0 16px;font-family:inherit;outline:none;
+    }
+    .fib-type-row{display:flex;gap:8px;margin-bottom:8px}
+    .fib-type-btn{
+      flex:1;height:48px;border-radius:16px;
+      background:var(--bg0);border:none;cursor:pointer;
+      font-size:13px;font-weight:700;color:var(--tx2);font-family:inherit;
+    }
+    .fib-type-btn.on{background:var(--tx1);color:var(--bg0)}
+    .fib-add-btn{
+      width:100%;height:48px;border-radius:16px;
+      background:#000;color:#fff;
+      border:none;cursor:pointer;
+      font-size:16px;font-weight:700;font-family:inherit;
+    }
+    [data-theme="dark"] .fib-add-btn{background:#fff;color:#000}
+
+    .nav{
+      position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+      width:100%;max-width:430px;
+      display:flex;justify-content:space-around;align-items:center;
+      background:var(--bg0);
+      border-top:1px solid rgba(128,128,128,.15);
+      padding:4px 0;
+      padding-bottom:calc(8px + env(safe-area-inset-bottom));
+      z-index:50;
+    }
+    .nv{
+      display:flex;flex-direction:column;align-items:center;gap:3px;
+      min-width:80px;min-height:48px;justify-content:center;
+      font-size:13px;font-weight:500;color:var(--tx2);
+      background:none;border:none;cursor:pointer;font-family:inherit;
+    }
+    .nv.on{color:var(--tx1);font-weight:700}
+    .nv svg{width:24px;height:24px}
+    .ico-on{display:none}
+    .nv.on .ico-off{display:none}
+    .nv.on .ico-on{display:block}
+
+    .s-bd{
+      position:fixed;inset:0;background:rgba(0,0,0,.5);
+      z-index:200;opacity:0;pointer-events:none;transition:opacity 0.2s ease-out;
+    }
+    .s-bd.open{opacity:1;pointer-events:auto}
+    .s-pan{
+      position:fixed;top:0;right:-320px;width:320px;height:100%;
+      background:var(--bg0);
+      z-index:201;transition:right 0.2s ease-out;
+      padding:64px 24px 24px;overflow-y:auto;
+    }
+    .s-pan.open{right:0}
+    .s-close-btn{position:absolute;top:12px;right:12px}
+    .s-title{font-size:20px;font-weight:700;margin-bottom:32px}
+    .s-section{margin-bottom:24px}
+    .s-label{font-size:13px;font-weight:500;color:var(--tx2);margin-bottom:8px}
+    .s-row{display:flex;justify-content:space-between;align-items:center}
+    .s-theme-row{display:flex;gap:8px}
+    .s-theme-btn{
+      flex:1;height:48px;border-radius:16px;
+      background:var(--bg1);border:none;cursor:pointer;
+      font-size:13px;font-weight:500;color:var(--tx2);font-family:inherit;
+    }
+    .s-theme-btn.on{background:var(--tx1);color:var(--bg0);font-weight:700}
+
+    @keyframes chkPop{from{transform:scale(0)}to{transform:scale(1)}}
+    .chk-pop{animation:chkPop 0.15s ease-out}
+
+    .spacer{height:140px}
   </style>
 </head>
 <body>
+
   <!-- Header -->
-  <div class="hdr" id="hdr">
-    <div>
-      <div class="hdr-date" id="hD"></div>
-      <div class="hdr-title" id="hT">今日</div>
+  <header class="hdr">
+    <div class="hdr-left">
+      <div class="hdr-date" id="hdrDate"></div>
+      <div class="hdr-title" id="hdrTitle">今日</div>
     </div>
-    <button class="icon-btn" onclick="openSettings()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <button class="icon-btn" onclick="openSettings()" aria-label="設定">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="3"/>
-        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
       </svg>
     </button>
-  </div>
+  </header>
 
-  <!-- Tab pages container -->
-  <div class="pages" id="pages">
+  <!-- Tab pages wrapper -->
+  <div class="tab-wrap">
 
-    <!-- TODAY -->
-    <div class="page" id="p-today">
-      <!-- Deadlines -->
+    <!-- Today page -->
+    <div id="pg-today" class="tab-page">
+
+      <!-- Deadlines section -->
       <div class="sec">
         <div class="sec-hdr">
-          <div class="sec-t">締め切り</div>
-          <button class="sec-toggle" id="dlToggle" onclick="toggleDlSection()">∧</button>
+          <span class="sec-title">締め切り</span>
+          <button class="sec-toggle" id="dlTogBtn" onclick="toggleDl()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+          </button>
         </div>
-        <div id="dlList"></div>
+        <div id="dlWrap">
+          <div class="dl-list" id="dlList"></div>
+        </div>
       </div>
 
-      <!-- Day strip -->
-      <div class="sec-hdr" style="padding:0 24px;margin-bottom:8px;">
-        <div class="sec-t">スケジュール</div>
+      <!-- Today tasks section -->
+      <div style="margin-bottom:8px">
+        <div class="sec-hdr" style="padding:0 24px;margin-bottom:0">
+          <span class="sec-title">今週のタスク</span>
+        </div>
       </div>
-      <div class="day-strip-wrap">
-        <div class="day-strip" id="dayStrip"></div>
-      </div>
+      <div id="ttList"></div>
 
-      <!-- Timeline -->
-      <div class="sec">
+      <!-- Schedule strip -->
+      <div style="margin-top:24px">
+        <div class="sec-hdr" style="padding:0 24px;margin-bottom:8px">
+          <span class="sec-title">スケジュール</span>
+        </div>
+        <div class="strip-wrap">
+          <div class="strip" id="strip"></div>
+        </div>
+        <!-- Timeline -->
         <div class="tl" id="tlToday"></div>
       </div>
 
-      <!-- Divider -->
-      <div class="sec-div"></div>
-
-      <!-- Today tasks -->
-      <div class="sec">
-        <div class="sec-hdr">
-          <div class="sec-t">今週のタスク</div>
-          <button class="sec-link" onclick="switchTab('tasks')">すべて →</button>
-        </div>
-        <div class="tt-list" id="ttL"></div>
-      </div>
-
-      <div class="spacer"></div>
     </div>
 
-    <!-- TASKS -->
-    <div class="page" id="p-tasks">
-      <div class="filter-row" id="filterRow">
+    <!-- Tasks page -->
+    <div id="pg-tasks" class="tab-page" style="display:none">
+      <div class="filter-row">
         <button class="filter-chip on" data-cat="all" onclick="setFilter('all')">すべて</button>
         <button class="filter-chip" data-cat="1" onclick="setFilter('1')">バイト</button>
         <button class="filter-chip" data-cat="2" onclick="setFilter('2')">大学</button>
@@ -746,1177 +551,825 @@
         <button class="filter-chip" data-cat="4" onclick="setFilter('4')">プライベート</button>
         <button class="filter-chip" data-cat="5" onclick="setFilter('5')">活動</button>
       </div>
-      <div style="padding:0 24px;" id="tkList"></div>
-      <div class="spacer"></div>
+      <div id="tkList"></div>
     </div>
 
-    <!-- BAITO -->
-    <div class="page" id="p-baito">
-      <div class="sec">
-        <!-- Default shifts card -->
-        <div class="bt-card">
-          <div class="bt-card-hdr">
-            <div class="bt-card-t">デフォルトシフト</div>
-            <button class="icon-btn" style="width:32px;height:32px;border-radius:8px;" onclick="openAddShift()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 5v14m-7-7h14"/></svg>
-            </button>
-          </div>
-          <div id="dShList"></div>
-        </div>
+    <!-- Baito page -->
+    <div id="pg-baito" class="tab-page" style="display:none">
+
+      <!-- Default shifts -->
+      <div class="sec-hdr" style="padding:0 24px;margin-bottom:8px;margin-top:8px">
+        <span class="sec-title">レギュラーシフト</span>
+      </div>
+      <div class="baito-card">
+        <div id="shiftList"></div>
       </div>
 
-      <!-- Month navigator -->
-      <div class="bt-month-nav">
-        <button class="bt-nav-btn" onclick="shiftMonth(-1)">‹</button>
-        <div class="bt-month-t" id="btMonthT"></div>
-        <button class="bt-nav-btn" onclick="shiftMonth(1)">›</button>
+      <!-- Stats -->
+      <div class="sec-hdr" style="padding:0 24px;margin-bottom:8px">
+        <span class="sec-title">今月の実績</span>
       </div>
+      <div class="baito-stats" id="baitoStats"></div>
 
-      <!-- Month summary -->
-      <div class="bt-summary" id="btSummary"></div>
-
-      <!-- Calendar -->
-      <div class="bt-cal">
-        <div class="bt-cal-grid" id="btCal"></div>
+      <!-- Calendar nav -->
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="prevBaitoMo()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span class="cal-month" id="calMonth"></span>
+        <button class="cal-nav-btn" onclick="nextBaitoMo()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
       </div>
+      <div class="cal-grid" id="calGrid"></div>
 
-      <!-- Override panel for selected date -->
-      <div class="bt-ov-panel" id="btOvPanel" style="display:none;">
-        <div class="bt-ov-t" id="btOvT"></div>
-        <div class="bt-ov-btns">
-          <button class="bt-ov-btn" id="btOvNormal" onclick="setOv('normal')">通常</button>
-          <button class="bt-ov-btn" id="btOvOff" onclick="setOv('off')">休み</button>
-          <button class="bt-ov-btn" id="btOvAdd" onclick="setOv('add')">追加</button>
-        </div>
-        <div class="bt-ov-time" id="btOvTime" style="display:none;">
-          <input type="time" id="btOvS" value="19:00">
-          <span style="align-self:center;color:var(--tx3);">〜</span>
-          <input type="time" id="btOvE" value="23:00">
-          <button onclick="saveOv()" style="padding:8px 12px;border-radius:8px;border:none;background:var(--tx1);color:var(--bg0);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">保存</button>
-        </div>
+      <!-- Baito action area -->
+      <div class="baito-action-area" id="baitoAction" style="display:none"></div>
+
+    </div>
+
+  </div>
+
+  <!-- Spacer -->
+  <div class="spacer"></div>
+
+  <!-- FIB backdrop -->
+  <div class="fib-bd" id="fibBd" onclick="closeFib()"></div>
+
+  <!-- Floating Input Bar -->
+  <div class="fib-outer" id="fibOuter">
+    <div class="fib-panel" id="fibPanel"></div>
+    <div class="fib-bar" onclick="openFib()">
+      <div class="fib-plus">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
       </div>
-
-      <!-- Baito timeline for selected date -->
-      <div class="sec">
-        <div class="sec-hdr" style="margin-bottom:12px;">
-          <div class="sec-t" id="btTlTitle">本日のシフト</div>
-        </div>
-        <div class="tl" id="tlBaito"></div>
-      </div>
-
-      <div class="spacer"></div>
+      <input id="fibInput" type="text" placeholder="タスクや予定を追加..." readonly>
     </div>
   </div>
 
-  <!-- Floating input bar -->
-  <div class="fib-wrap" id="fibWrap">
-    <div class="fib-detail" id="fibDetail">
-      <!-- Category chips -->
-      <div class="fib-cat-row" id="fibCatRow"></div>
-      <!-- Date buttons -->
-      <div class="fib-date-row" id="fibDateRow">
-        <button class="fib-date-btn on" data-d="today" onclick="fibSetDate('today',this)">今日</button>
-        <button class="fib-date-btn" data-d="tomorrow" onclick="fibSetDate('tomorrow',this)">明日</button>
-        <button class="fib-date-btn" data-d="dayafter" onclick="fibSetDate('dayafter',this)">明後日</button>
-        <input type="date" id="fibDatePicker" onchange="fibSetDate('custom',this)">
-      </div>
-      <!-- Time -->
-      <div class="fib-time-row">
-        <span class="fib-time-label">時刻</span>
-        <input type="time" id="fibTime" value="23:59">
-      </div>
-      <!-- Type toggle -->
-      <div class="fib-type-row">
-        <button class="fib-type-btn on" data-type="task" onclick="fibSetType('task',this)">タスク</button>
-        <button class="fib-type-btn" data-type="event" onclick="fibSetType('event',this)">予定</button>
-      </div>
-      <!-- Submit -->
-      <button class="fib-submit" onclick="submitFIB()">追加</button>
-    </div>
-    <div class="fib" id="fib">
-      <button class="fib-plus" onclick="focusFIB()">+</button>
-      <input type="text" id="fibInput" placeholder="タスクを追加...">
-    </div>
-  </div>
-
-  <!-- Nav -->
-  <nav class="nav" id="nav">
-    <button class="nv on" data-tab="today" onclick="switchTab('today')">
-      <svg class="ico-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M4.93 4.93l2.12 2.12m9.9 9.9l2.12 2.12M4.93 19.07l2.12-2.12m9.9-9.9l2.12-2.12" stroke-linecap="round"/>
-      </svg>
-      <svg class="ico-on" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="4" fill="currentColor"/>
-        <path d="M12 2v3m0 14v3M2 12h3m14 0h3M4.93 4.93l2.12 2.12m9.9 9.9l2.12 2.12M4.93 19.07l2.12-2.12m9.9-9.9l2.12-2.12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-      </svg>
+  <!-- Nav bar -->
+  <nav class="nav">
+    <button class="nv on" data-tab="today" onclick="switchTab('today',event)">
+      <span class="ico-off">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </span>
+      <span class="ico-on">
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+          <path d="M19 3h-1V2a1 1 0 0 0-2 0v1H8V2a1 1 0 0 0-2 0v1H5a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 17H5V9h14v11z"/>
+        </svg>
+      </span>
       今日
     </button>
-    <button class="nv" data-tab="tasks" onclick="switchTab('tasks')">
-      <svg class="ico-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <svg class="ico-on" viewBox="0 0 24 24">
-        <rect x="3" y="3" width="18" height="18" rx="3" fill="currentColor"/>
-        <path d="M9 12l2 2 4-4" stroke="var(--bg0)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+    <button class="nv" data-tab="tasks" onclick="switchTab('tasks',event)">
+      <span class="ico-off">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+          <polyline points="3 6 4 7 6 5"/><polyline points="3 12 4 13 6 11"/><polyline points="3 18 4 19 6 17"/>
+        </svg>
+      </span>
+      <span class="ico-on">
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+          <path d="M21 6H8a1 1 0 0 0 0 2h13a1 1 0 0 0 0-2zM21 11H8a1 1 0 0 0 0 2h13a1 1 0 0 0 0-2zM21 16H8a1 1 0 0 0 0 2h13a1 1 0 0 0 0-2zM4.5 7.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM4.5 12.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM4.5 17.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+        </svg>
+      </span>
       タスク
     </button>
-    <button class="nv" data-tab="baito" onclick="switchTab('baito')">
-      <svg class="ico-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="2" y="7" width="20" height="14" rx="3"/><path d="M16 7V5a2 2 0 00-4 0v2" stroke-linecap="round"/>
-      </svg>
-      <svg class="ico-on" viewBox="0 0 24 24">
-        <rect x="2" y="7" width="20" height="14" rx="3" fill="currentColor"/>
-        <path d="M16 7V5a2 2 0 00-4 0v2" stroke="var(--bg0)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-      </svg>
+    <button class="nv" data-tab="baito" onclick="switchTab('baito',event)">
+      <span class="ico-off">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="14" rx="2"/>
+          <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+          <line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/>
+        </svg>
+      </span>
+      <span class="ico-on">
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+          <path d="M20 7h-4V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM10 5h4v2h-4V5zm3 9h-1v1a1 1 0 0 1-2 0v-1h-1a1 1 0 0 1 0-2h1v-1a1 1 0 0 1 2 0v1h1a1 1 0 0 1 0 2z"/>
+        </svg>
+      </span>
       バイト
     </button>
   </nav>
 
   <!-- Settings panel -->
-  <div class="s-bg" id="sBg" onclick="closeSettings()"></div>
+  <div class="s-bd" id="sBd" onclick="closeSettings()"></div>
   <div class="s-pan" id="sPan">
-    <button class="s-close" onclick="closeSettings()">×</button>
+    <button class="icon-btn s-close-btn" onclick="closeSettings()" aria-label="閉じる">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
     <div class="s-title">設定</div>
 
     <div class="s-section">
       <div class="s-label">テーマ</div>
-      <div class="s-theme-btns">
-        <button id="thAuto" onclick="setTheme('auto')">自動</button>
-        <button id="thDark" onclick="setTheme('dark')">ダーク</button>
-        <button id="thLight" onclick="setTheme('light')">ライト</button>
+      <div class="s-theme-row">
+        <button class="s-theme-btn" data-mode="light" onclick="setTheme('light')">ライト</button>
+        <button class="s-theme-btn" data-mode="auto" onclick="setTheme('auto')">自動</button>
+        <button class="s-theme-btn" data-mode="dark" onclick="setTheme('dark')">ダーク</button>
       </div>
     </div>
 
     <div class="s-section">
+      <div class="s-label">表示設定</div>
       <div class="s-row">
-        <div class="s-label" style="margin-bottom:0;">バイト表示</div>
-        <div class="toggle-sw" id="baitoToggle" onclick="toggleBaito()"></div>
+        <span style="font-size:16px;font-weight:500">バイトをスケジュールに表示</span>
+        <button class="tog-sw on" id="baitoTog" onclick="toggleBaitoSetting()"></button>
       </div>
-    </div>
-
-    <div class="s-section">
-      <div class="s-label">緊急表示: <span id="urgVal">2</span>日前から</div>
-      <input type="range" min="1" max="7" value="2" id="urgRange" oninput="setUrgThresh(this.value)">
     </div>
 
     <div class="s-section">
       <div class="s-label">データ</div>
-      <div class="s-data-btns">
-        <button class="s-data-btn" onclick="exportData()">データをエクスポート</button>
-        <button class="s-data-btn danger" onclick="resetData()">データをリセット</button>
-      </div>
+      <button class="del-btn" style="text-align:left;padding:0" onclick="if(confirm('すべてのデータをリセットしますか？')){localStorage.clear();location.reload()}">データをリセット</button>
     </div>
   </div>
 
   <script>
-  // ===== CONSTANTS =====
-  const CAT = {
-    1: { name: 'バイト',       color: '#d4a020' },
-    2: { name: '大学',         color: '#c86030' },
-    3: { name: '制作',         color: '#509830' },
-    4: { name: 'プライベート', color: '#2878b8' },
-    5: { name: '活動',         color: '#8048a0' },
+  'use strict';
+
+  const TODAY = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const DOW = ['日','月','火','水','木','金','土'];
+  const parseDate = s => { const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); };
+  const fmtDate = d => `${d.getMonth()+1}月${d.getDate()}日(${DOW[d.getDay()]})`;
+  const fmtDateLong = d => `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日(${DOW[d.getDay()]})`;
+  const daysUntil = toStr => Math.ceil((parseDate(toStr)-new Date(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate()))/864e5);
+  const durStr = (s,e) => {
+    if(!s||!e) return '';
+    const [sh,sm]=s.split(':').map(Number),[eh,em]=e.split(':').map(Number);
+    const m=(eh*60+em)-(sh*60+sm);
+    if(m<=0) return '';
+    return m>=60?`${Math.floor(m/60)}h${m%60?m%60+'m':''}`:m+'分';
   };
+  const catName = c => ['','バイト','大学','制作','プライベート','活動'][c]||'';
+  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  let nextId = 9000;
+  const newId = () => ++nextId;
 
-  const DEFAULT_EVS = [
-    {id:1, title:'Blender アニメーション作業', c:3, date:'2026-03-21', s:'13:00', e:'16:00'},
-    {id:3, title:'映像基礎演習', c:2, date:'2026-03-24', s:'10:00', e:'12:00'},
-    {id:4, title:'造形原論', c:2, date:'2026-03-24', s:'13:00', e:'14:30'},
-    {id:6, title:'CG演習', c:2, date:'2026-03-25', s:'10:00', e:'12:00'},
-    {id:7, title:'ACジャパン広告学生賞 授賞式', c:5, date:'2026-03-26', s:'14:00', e:'17:00'},
+  const DEF_TASKS = [
+    {id:101,title:'ポートフォリオに「言葉の瓶」追加',cat:3,due:'2026-03-23',dueTime:'23:59',done:false,subtasks:[],memo:'',urgentDays:2},
+    {id:102,title:'授賞式の交通手段確認',cat:5,due:'2026-03-25',dueTime:'23:59',done:false,subtasks:[],memo:'',urgentDays:2},
+    {id:103,title:'DaVinci カラグレ書き出し確認',cat:3,due:'2026-03-24',dueTime:'23:59',done:false,subtasks:[],memo:'',urgentDays:2},
+    {id:104,title:'4年次ゼミ希望届提出',cat:2,due:'2026-04-02',dueTime:'12:00',done:false,subtasks:[],memo:'',urgentDays:2},
+    {id:105,title:'ES提出 (A社)',cat:2,due:'2026-04-08',dueTime:'23:59',done:false,subtasks:[],memo:'',urgentDays:2},
+    {id:106,title:'シフト来月分提出',cat:1,due:'2026-03-28',dueTime:'23:59',done:false,subtasks:[],memo:'',urgentDays:2},
   ];
-  const DEFAULT_TKS = [
-    {id:101, title:'ポートフォリオに『言葉の瓶』追加', c:3, due:'2026-03-23', dt:'23:59', done:false, subtasks:[], memo:''},
-    {id:102, title:'授賞式の交通手段確認', c:5, due:'2026-03-25', dt:'23:59', done:false, subtasks:[], memo:''},
-    {id:103, title:'DaVinci カラグレ書き出し確認', c:3, due:'2026-03-24', dt:'23:59', done:false, subtasks:[], memo:''},
-    {id:104, title:'4年次ゼミ希望届提出', c:2, due:'2026-04-02', dt:'12:00', done:false, subtasks:[], memo:''},
-    {id:105, title:'ES提出 (A社)', c:2, due:'2026-04-08', dt:'23:59', done:false, subtasks:[], memo:''},
-    {id:106, title:'シフト来月分提出', c:1, due:'2026-03-28', dt:'23:59', done:false, subtasks:[], memo:''},
+  const DEF_EVENTS = [
+    {id:1,title:'Blender アニメーション作業',cat:3,date:'2026-03-26',start:'13:00',end:'16:00'},
+    {id:2,title:'映像基礎演習',cat:2,date:'2026-03-27',start:'10:00',end:'12:00'},
+    {id:3,title:'造形原論',cat:2,date:'2026-03-27',start:'13:00',end:'14:30'},
+    {id:4,title:'CG演習',cat:2,date:'2026-03-28',start:'10:00',end:'12:00'},
+    {id:5,title:'ACジャパン広告学生賞 授賞式',cat:5,date:'2026-03-26',start:'14:00',end:'17:00'},
   ];
-  const DEFAULT_DSH = [
-    {dow:3, s:'19:00', e:'23:00', on:true},
-    {dow:6, s:'20:00', e:'24:00', on:true},
+  const DEF_SHIFTS = [
+    {dow:3,start:'19:00',end:'23:00',on:true},
+    {dow:6,start:'20:00',end:'24:00',on:true},
   ];
 
-  // ===== DATE/TIME HELPERS =====
-  const T = new Date();
-  const P = n => String(n).padStart(2,'0');
-  const F = d => `${d.getFullYear()}-${P(d.getMonth()+1)}-${P(d.getDate())}`;
-  const DW = ['日','月','火','水','木','金','土'];
-  const FS = d => `${d.getMonth()+1}月${d.getDate()}日(${DW[d.getDay()]})`;
-  const FL = d => `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日(${DW[d.getDay()]})`;
-  const DB = (a, b) => Math.ceil((new Date(b) - new Date(a)) / 864e5);
-  const SD = (a, b) => F(a) === F(b);
-  const PD = s => { const p = s.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); };
-  const TD = (a, b) => {
-    if (!a || !b) return '';
-    const [ah,am]=a.split(':').map(Number), [bh,bm]=b.split(':').map(Number);
-    const d=(bh*60+bm)-(ah*60+am);
-    return d>=60?Math.floor(d/60)+'h'+(d%60?d%60+'分':''):d+'分';
-  };
-  const AE = (s, m) => { const [h,mi]=s.split(':').map(Number); const t=h*60+mi+m; return `${P(Math.floor(t/60))}:${P(t%60)}`; };
-
-  // ===== STATE =====
-  let evs, tks, dSh, shOvs, urgThresh, showBaito;
-  let nid = 500;
-  let curTab = 0;
-  const tabOrder = ['today', 'tasks', 'baito'];
-  let selDate = new Date(T);
-  let calMo = new Date(T.getFullYear(), T.getMonth(), 1);
-  let shMo = new Date(T.getFullYear(), T.getMonth(), 1);
+  let tasks, events, settings, defaultShifts, shiftOverrides;
+  let selDate = new Date(TODAY);
+  let baitoCalMo = new Date(TODAY.getFullYear(),TODAY.getMonth(),1);
+  let selBaitoDate = null;
   let curFilter = 'all';
+  let curTabIdx = 0;
+  const TAB_ORDER = ['today','tasks','baito'];
   let dlOpen = true;
-  let btSelDate = new Date(T);
-
-  // FIB state
-  let fibCat = 3;
-  let fibDateMode = 'today';
-  let fibCustomDate = null;
+  let doneOpen = false;
+  let doneTkOpen = false;
+  let fibOpen = false;
+  let fibCat = 1;
+  let fibDate = fmt(TODAY);
   let fibType = 'task';
 
-  // ===== DATA LOAD/SAVE =====
   function loadData() {
-    const rawEvs = localStorage.getItem('evs');
-    const rawTks = localStorage.getItem('tks');
-    const rawDSh = localStorage.getItem('dSh');
-    evs = rawEvs ? JSON.parse(rawEvs) : DEFAULT_EVS.map(e=>({...e}));
-    tks = rawTks ? JSON.parse(rawTks) : DEFAULT_TKS.map(t=>({...t, subtasks:t.subtasks||[], memo:t.memo||''}));
-    dSh = rawDSh ? JSON.parse(rawDSh) : DEFAULT_DSH.map(s=>({...s}));
-    shOvs = JSON.parse(localStorage.getItem('shOvs') || '{}');
-    urgThresh = parseInt(localStorage.getItem('urgThresh') || '2');
-    showBaito = localStorage.getItem('showBaito') !== 'false';
-
-    // compute nid
-    const allIds = [...evs.map(e=>e.id), ...tks.map(t=>t.id)];
-    nid = Math.max(500, ...allIds) + 1;
+    tasks = JSON.parse(localStorage.getItem('tasks')||'null') ?? DEF_TASKS.map(t=>({...t,subtasks:[...(t.subtasks||[])]}));
+    events = JSON.parse(localStorage.getItem('events')||'null') ?? DEF_EVENTS.map(e=>({...e}));
+    settings = JSON.parse(localStorage.getItem('settings')||'null') ?? {theme:'auto',showBaito:true};
+    defaultShifts = JSON.parse(localStorage.getItem('defaultShifts')||'null') ?? DEF_SHIFTS.map(s=>({...s}));
+    shiftOverrides = JSON.parse(localStorage.getItem('shiftOverrides')||'{}');
   }
-
   function saveData() {
-    localStorage.setItem('evs', JSON.stringify(evs));
-    localStorage.setItem('tks', JSON.stringify(tks));
-    localStorage.setItem('dSh', JSON.stringify(dSh));
-    localStorage.setItem('shOvs', JSON.stringify(shOvs));
+    localStorage.setItem('tasks',JSON.stringify(tasks));
+    localStorage.setItem('events',JSON.stringify(events));
+    localStorage.setItem('settings',JSON.stringify(settings));
+    localStorage.setItem('defaultShifts',JSON.stringify(defaultShifts));
+    localStorage.setItem('shiftOverrides',JSON.stringify(shiftOverrides));
   }
 
-  // ===== THEME =====
-  function initTheme() {
-    const saved = localStorage.getItem('theme') || 'auto';
-    applyTheme(saved);
-    updateThemeButtons(saved);
-  }
-
+  function initTheme() { applyTheme(settings.theme); }
   function applyTheme(mode) {
-    if (mode === 'dark') {
-      document.body.setAttribute('data-theme', 'dark');
-    } else if (mode === 'light') {
-      document.body.removeAttribute('data-theme');
-    } else {
-      // auto
-      if (window.matchMedia('(prefers-color-scheme:dark)').matches) {
-        document.body.setAttribute('data-theme', 'dark');
-      } else {
-        document.body.removeAttribute('data-theme');
-      }
-    }
+    settings.theme = mode;
+    const dark = mode==='dark' || (mode==='auto' && window.matchMedia('(prefers-color-scheme:dark)').matches);
+    if(dark) document.documentElement.setAttribute('data-theme','dark');
+    else document.documentElement.removeAttribute('data-theme');
+    saveData();
+    document.querySelectorAll('.s-theme-btn').forEach(b=>b.classList.toggle('on',b.dataset.mode===mode));
   }
 
-  function setTheme(mode) {
-    localStorage.setItem('theme', mode);
-    applyTheme(mode);
-    updateThemeButtons(mode);
-  }
+  function switchTab(name, e) {
+    if(e) e.stopPropagation();
+    const newIdx = TAB_ORDER.indexOf(name);
+    if(newIdx===curTabIdx) return;
+    const dir = newIdx > curTabIdx ? 1 : -1;
+    const curPage = document.getElementById('pg-'+TAB_ORDER[curTabIdx]);
+    const newPage = document.getElementById('pg-'+name);
 
-  function updateThemeButtons(mode) {
-    ['auto','dark','light'].forEach(m => {
-      const btn = document.getElementById('th' + m.charAt(0).toUpperCase() + m.slice(1));
-      if (btn) btn.classList.toggle('on', m === mode);
+    newPage.style.display='block';
+    newPage.style.position='absolute';
+    newPage.style.top='0';
+    newPage.style.left='0';
+    newPage.style.width='100%';
+    newPage.style.transform=`translateX(${dir*100}%)`;
+    newPage.style.opacity='0';
+    newPage.style.transition='none';
+
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        const T='transform 0.2s ease-out,opacity 0.2s ease-out';
+        curPage.style.transition=T;
+        newPage.style.transition=T;
+        curPage.style.transform=`translateX(${-dir*100}%)`;
+        curPage.style.opacity='0';
+        newPage.style.transform='translateX(0)';
+        newPage.style.opacity='1';
+      });
     });
+
+    setTimeout(()=>{
+      curPage.style.display='none';
+      curPage.style.transform='';
+      curPage.style.opacity='';
+      curPage.style.transition='';
+      curPage.style.position='';
+      curPage.style.top='';
+      curPage.style.left='';
+      curPage.style.width='';
+      newPage.style.transition='';
+      newPage.style.position='';
+      newPage.style.top='';
+      newPage.style.left='';
+      newPage.style.width='';
+      renderTabContent(name);
+    },220);
+
+    curTabIdx=newIdx;
+    document.querySelectorAll('.nv').forEach(n=>n.classList.toggle('on',n.dataset.tab===name));
+    document.getElementById('hdrTitle').textContent={today:'今日',tasks:'タスク',baito:'バイト'}[name];
+    closeFib();
   }
 
-  // ===== URGENCY =====
-  function setUrgThresh(v) {
-    urgThresh = parseInt(v);
-    localStorage.setItem('urgThresh', urgThresh);
-    document.getElementById('urgVal').textContent = urgThresh;
-    renderAll();
+  function renderTabContent(name) {
+    if(name==='today'){ renderDeadlines(); renderTodayTasks(); renderStrip(); renderTimeline(fmt(selDate)); }
+    if(name==='tasks') renderTasksTab();
+    if(name==='baito') renderBaito();
   }
 
-  // ===== BAITO TOGGLE =====
-  function toggleBaito() {
-    showBaito = !showBaito;
-    localStorage.setItem('showBaito', showBaito);
-    document.getElementById('baitoToggle').classList.toggle('on', showBaito);
-    renderAll();
-  }
-
-  // ===== BAITO EVENT GENERATION =====
-  function buildBaitoEvs(mo, yr) {
-    const r = [];
-    const dm = new Date(yr, mo+1, 0).getDate();
-    for (let d = 1; d <= dm; d++) {
-      const dt = new Date(yr, mo, d);
-      const ds = F(dt);
-      const dw = dt.getDay();
-      const ov = shOvs[ds];
-      if (ov && ov.type === 'off') continue;
-      if (ov && ov.type === 'add') {
-        r.push({id: nid++, title:'バイト', c:1, date:ds, s:ov.s, e:ov.e});
-        continue;
-      }
-      const df = dSh.find(x => x.dow === dw && x.on);
-      if (df) r.push({id: nid++, title:'バイト', c:1, date:ds, s:df.s, e:df.e});
-    }
-    return r;
-  }
-
-  function getEventsForDay(date) {
-    const ds = F(date);
-    let r = [
-      ...evs.filter(e => e.date === ds),
-      ...buildBaitoEvs(date.getMonth(), date.getFullYear()).filter(e => e.date === ds)
-    ];
-    if (!showBaito) r = r.filter(e => e.c !== 1);
-    // Deduplicate
-    const seen = new Set();
-    r = r.filter(e => { const k = e.title+e.s; if(seen.has(k)) return false; seen.add(k); return true; });
-    r.sort((a,b) => (a.s||'').localeCompare(b.s||''));
-    return r;
-  }
-
-  function daysUntil(due) {
-    const now = new Date(T.getFullYear(), T.getMonth(), T.getDate());
-    return DB(F(now), due);
-  }
-
-  // ===== RENDER ALL =====
   function renderAll() {
-    renderDeadlines();
-    renderTodayTasks();
-    renderStrip();
-    renderTimeline('tlToday', selDate);
-    renderTasksTab();
-    renderBaito();
+    renderTabContent(TAB_ORDER[curTabIdx]);
   }
 
-  // ===== RENDER HEADER =====
-  function renderHeader() {
-    document.getElementById('hD').textContent = FL(T);
+  // ===== DEADLINES =====
+  const chevUp = ()=>`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>`;
+  const chevDown = ()=>`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>`;
+
+  function toggleDl() {
+    dlOpen=!dlOpen;
+    const w=document.getElementById('dlWrap');
+    if(dlOpen){ w.style.maxHeight='2000px'; }
+    else { w.style.maxHeight='0'; }
+    document.getElementById('dlTogBtn').innerHTML=dlOpen?chevUp():chevDown();
   }
 
-  // ===== DEADLINE CARDS =====
   function renderDeadlines() {
-    const el = document.getElementById('dlList');
-    if (!dlOpen) { el.innerHTML = ''; return; }
-
-    const today = F(T);
-    const pending = tks
-      .filter(t => !t.done && t.due >= today)
-      .sort((a,b) => a.due.localeCompare(b.due) || (a.dt||'').localeCompare(b.dt||''));
-
-    if (pending.length === 0) {
-      el.innerHTML = '<div class="empty-state">締め切りはありません</div>';
+    const el=document.getElementById('dlList');
+    const list=tasks.filter(t=>!t.done&&t.due).sort((a,b)=>a.due.localeCompare(b.due));
+    if(!list.length){
+      el.innerHTML='<div style="padding:16px 0;text-align:center;font-size:16px;color:var(--tx2)">締め切りなし</div>';
       return;
     }
-
-    el.innerHTML = pending.map(t => {
-      const days = daysUntil(t.due);
-      const urg = days <= urgThresh;
-      const dueDate = PD(t.due);
-      const catName = CAT[t.c]?.name || '';
-      const daysLabel = days === 0 ? '今日' : days < 0 ? '超過' : String(days);
-      const daysUnit = (days === 0 || days < 0) ? '' : '日';
-      return `
-        <div class="dl-card c${t.c}${urg?' urg':''}" data-id="${t.id}" onclick="toggleCardDetail(this,event)">
+    el.innerHTML=list.map(t=>{
+      const d=daysUntil(t.due);
+      const over=d<0, urg=!over&&d<=(t.urgentDays??2);
+      const badge=over
+        ? `<span class="cat-tag" style="background:#ff3030">超過</span>`
+        : `<span class="cat-tag c${t.cat}">${catName(t.cat)}</span>`;
+      return `<div class="dl-card c${t.cat}${urg?' urg':''}" onclick="toggleDlDetail(${t.id})">
+        <div class="dl-main">
           <div class="dl-num">
-            <span class="dl-days">${daysLabel}</span>
-            <span class="dl-unit">${daysUnit}</span>
+            <span class="dl-days">${over?'!':d}</span>
+            <span class="dl-unit">${over?'超過':'日'}</span>
           </div>
-          <div class="dl-body">
+          <div>
             <div class="dl-title">${esc(t.title)}</div>
             <div class="dl-meta">
-              <span class="dl-date">${FS(dueDate)}</span>
-              <span class="dl-time">${t.dt||''}</span>
+              <span>${fmtDate(parseDate(t.due))}</span>
+              <span class="dl-time"> ${t.dueTime||''}</span>
             </div>
           </div>
-          <div class="dl-tag">${catName}</div>
-          <div class="dl-detail" onclick="event.stopPropagation()">
-            ${renderTaskDetailInner(t)}
-          </div>
-        </div>`;
+          ${badge}
+        </div>
+        <div class="dl-detail" id="dld-${t.id}">
+          <div class="detail-sep"></div>
+          ${buildTaskDetailForm(t,'dl')}
+        </div>
+      </div>`;
     }).join('');
   }
 
-  function renderTaskDetailInner(t) {
-    const catChips = Object.entries(CAT).map(([k,v]) =>
-      `<button class="detail-cat-chip${t.c==k?' on':''}" style="background:${v.color};" onclick="setTaskCat(${t.id},${k})">${v.name}</button>`
-    ).join('');
+  function toggleDlDetail(id) {
+    document.getElementById('dld-'+id)?.classList.toggle('open');
+  }
+
+  function buildTaskDetailForm(t, prefix) {
+    const catChips=[1,2,3,4,5].map(c=>
+      `<button class="cat-chip c${c}${t.cat===c?' sel':''}"
+        onclick="event.stopPropagation();updateTaskField(${t.id},'cat',${c});renderAll()">
+        ${catName(c)}
+      </button>`).join('');
+    const pfx=prefix||'x';
     return `
-      <input class="detail-input" type="text" value="${esc(t.title)}" onchange="updateTaskTitle(${t.id},this.value)" placeholder="タイトル">
+      <input class="detail-input" type="text" value="${esc(t.title)}" placeholder="タイトル"
+        oninput="updateTaskField(${t.id},'title',this.value)" onclick="event.stopPropagation()">
       <div class="detail-row">
-        <input type="date" value="${t.due||''}" onchange="updateTaskDue(${t.id},this.value)">
-        <input type="time" value="${t.dt||'23:59'}" onchange="updateTaskDt(${t.id},this.value)">
+        <input class="detail-date" type="date" value="${t.due||''}"
+          onchange="updateTaskField(${t.id},'due',this.value);renderAll()" onclick="event.stopPropagation()">
+        <input class="detail-time" type="time" value="${t.dueTime||'23:59'}"
+          onchange="updateTaskField(${t.id},'dueTime',this.value)" onclick="event.stopPropagation()">
       </div>
-      <div class="detail-cats">${catChips}</div>
-      <textarea class="detail-memo" rows="2" placeholder="メモ" onchange="updateTaskMemo(${t.id},this.value)">${esc(t.memo||'')}</textarea>
-      <div class="detail-actions">
-        <button class="done-btn" onclick="toggleTask(${t.id})">完了</button>
-        <button class="del-btn" onclick="deleteTask(${t.id})">削除</button>
-        <button class="save-btn" onclick="saveTaskFromCard(${t.id},this)">保存</button>
-      </div>`;
+      <div class="cat-chips">${catChips}</div>
+      <textarea class="detail-textarea" rows="3" placeholder="メモ"
+        oninput="updateTaskField(${t.id},'memo',this.value)" onclick="event.stopPropagation()">${esc(t.memo||'')}</textarea>
+      <div class="urg-slider-row">
+        <div class="urg-slider-label">
+          <span>緊急表示</span>
+          <span id="urgL-${t.id}-${pfx}">${t.urgentDays??2}日前から</span>
+        </div>
+        <input type="range" min="1" max="7" value="${t.urgentDays??2}"
+          oninput="updateTaskField(${t.id},'urgentDays',+this.value);var el=document.getElementById('urgL-${t.id}-${pfx}');if(el)el.textContent=this.value+'日前から'"
+          onclick="event.stopPropagation()">
+      </div>
+      <button class="del-btn" onclick="event.stopPropagation();deleteTask(${t.id})">削除</button>
+    `;
   }
 
-  function toggleCardDetail(el, evt) {
-    if (evt && evt.target.closest('.dl-detail, .tk-detail')) return;
-    el.classList.toggle('expanded');
+  function updateTaskField(id, key, val) {
+    const t=tasks.find(x=>x.id===id); if(!t) return;
+    t[key]=val; saveData();
   }
-
-  function toggleDlSection() {
-    dlOpen = !dlOpen;
-    document.getElementById('dlToggle').textContent = dlOpen ? '∧' : '∨';
-    renderDeadlines();
+  function deleteTask(id) {
+    if(!confirm('削除しますか？')) return;
+    tasks=tasks.filter(t=>t.id!==id); saveData(); renderAll();
   }
 
   // ===== TODAY TASKS =====
   function renderTodayTasks() {
-    const el = document.getElementById('ttL');
-    const today = F(T);
-    // week: next 7 days
-    const week = new Date(T);
-    week.setDate(week.getDate() + 7);
-    const weekStr = F(week);
+    const el=document.getElementById('ttList');
+    const weekEnd=new Date(TODAY); weekEnd.setDate(TODAY.getDate()+7);
+    const weekEndStr=fmt(weekEnd);
+    const active=tasks.filter(t=>!t.done&&t.due&&t.due<=weekEndStr).sort((a,b)=>a.due.localeCompare(b.due));
+    const done=tasks.filter(t=>t.done);
 
-    const tasks = tks
-      .filter(t => !t.done && t.due <= weekStr)
-      .sort((a,b) => a.due.localeCompare(b.due));
+    let html=active.map(t=>renderTtRow(t)).join('');
+    html+=`<div class="done-hdr" onclick="toggleDoneSection('done','doneCaret')">
+      完了 (${done.length})
+      <svg id="doneCaret" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform 0.2s;${doneOpen?'transform:rotate(180deg)':''}"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="done-list${doneOpen?' open':''}" id="done">
+      ${done.map(t=>renderTtRow(t,true)).join('')}
+    </div>`;
+    el.innerHTML=html;
+  }
 
-    if (tasks.length === 0) {
-      el.innerHTML = '<div class="empty-state">今週のタスクはありません</div>';
-      return;
-    }
+  function toggleDoneSection(listId, caretId) {
+    doneOpen=!doneOpen;
+    document.getElementById(listId)?.classList.toggle('open',doneOpen);
+    const c=document.getElementById(caretId);
+    if(c) c.style.transform=doneOpen?'rotate(180deg)':'';
+  }
 
-    el.innerHTML = tasks.map(t => {
-      const days = daysUntil(t.due);
-      const urg = days <= urgThresh;
-      const dueDate = PD(t.due);
-      const prog = t.subtasks && t.subtasks.length > 0
-        ? `<span class="prog">${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length}</span>` : '';
-      const badge = days === 0 ? '今日' : days < 0 ? '超過' : days+'日';
-      const hasSubs = t.subtasks && t.subtasks.length > 0;
-      return `
-        <div class="tt-row c${t.c}" data-id="${t.id}" onclick="expandTTRow(${t.id})">
-          <div class="tt-chk${t.done?' done':''}" onclick="event.stopPropagation();toggleTask(${t.id})"></div>
-          <div class="tt-body">
-            <div class="tt-title">${esc(t.title)}${prog}</div>
-            <div class="tt-sub">${FS(dueDate)} ${t.dt||''} · ${CAT[t.c]?.name||''}</div>
-          </div>
-          <div class="tt-badge${urg?' urg':''}">${badge}</div>
+  function renderTtRow(t, isDone=false) {
+    const d=daysUntil(t.due);
+    const over=d<0, urg=!isDone&&!over&&d<=(t.urgentDays??2);
+    const badgeClass=over?'over':urg?'urg':'';
+    const badgeText=over?'超過':d+'日';
+    const prog=t.subtasks?.length?`<span class="prog">${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length}</span>`:'';
+    const subRows=(t.subtasks||[]).map(s=>`
+      <div class="sub-row">
+        <div class="sub-chk${s.done?' done':''}" onclick="toggleSub(${t.id},${s.id})"></div>
+        <div class="sub-title${s.done?' done':''}">${esc(s.text)}</div>
+      </div>`).join('');
+    return `
+      <div class="tt-row c${t.cat}${isDone?' done-row':''}" data-id="${t.id}" onclick="toggleTtExpand(${t.id})">
+        <div class="tt-chk${t.done?' done':''} c${t.cat}" onclick="event.stopPropagation();doToggleTask(${t.id})"></div>
+        <div>
+          <div class="tt-title">${esc(t.title)} ${prog}</div>
+          <div class="tt-sub">${fmtDate(parseDate(t.due))} ${t.dueTime||''} · ${catName(t.cat)}</div>
         </div>
-        ${hasSubs ? `
-        <div class="tt-subs hide" id="subs-${t.id}">
-          ${(t.subtasks||[]).map(s=>`
-            <div class="sub-row">
-              <div class="sub-chk${s.done?' done':''}" onclick="toggleSubtask(${t.id},${s.id})"></div>
-              <div class="sub-title${s.done?' done-txt':''}">${esc(s.title)}</div>
-            </div>`).join('')}
-          <button class="add-sub-btn" onclick="addSubtask(${t.id})">+ サブタスク</button>
-        </div>` : ''}`;
-    }).join('');
+        <div class="tt-badge ${badgeClass}">${badgeText}</div>
+      </div>
+      <div class="tt-subs" id="ttS-${t.id}">
+        ${subRows}
+        <button class="add-sub-btn" onclick="startAddSub(${t.id},'ttS-${t.id}')">+ サブタスク</button>
+      </div>
+      <div class="tt-detail" id="ttD-${t.id}">
+        <div class="detail-sep"></div>
+        ${buildTaskDetailForm(t,'tt')}
+      </div>`;
   }
 
-  function expandTTRow(id) {
-    const subs = document.getElementById('subs-'+id);
-    if (subs) subs.classList.toggle('hide');
+  function toggleTtExpand(id) {
+    document.getElementById('ttS-'+id)?.classList.toggle('open');
+    document.getElementById('ttD-'+id)?.classList.toggle('open');
   }
 
-  // ===== DAY STRIP =====
-  function renderStrip() {
-    const strip = document.getElementById('dayStrip');
-    const days = 14; // show 14 days centered on today
-    const start = new Date(T);
-    start.setDate(start.getDate() - 3); // 3 days before today
-
-    let html = '';
-    for (let i = 0; i < days; i++) {
-      const d = new Date(start);
-      d.setDate(d.getDate() + i);
-      const isToday = SD(d, T);
-      const isSel = SD(d, selDate);
-      const ds = F(d);
-      const hasEv = getEventsForDay(d).length > 0;
-      html += `
-        <button class="sd${isToday?' today':''}${isSel?' sel':''}" onclick="selectDay('${ds}')">
-          <span class="sd-dow">${DW[d.getDay()]}</span>
-          <span class="sd-num">${d.getDate()}</span>
-          <div class="sd-dot${hasEv?' vis':''}"></div>
-        </button>`;
-    }
-    strip.innerHTML = html;
-
-    // scroll selected into view
-    setTimeout(() => {
-      const selBtn = strip.querySelector('.sel');
-      if (selBtn) selBtn.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
-    }, 50);
+  function doToggleTask(id) {
+    const t=tasks.find(x=>x.id===id); if(!t) return;
+    if(t.done){ t.done=false; saveData(); renderAll(); return; }
+    const row=document.querySelector(`.tt-row[data-id="${id}"]`);
+    if(row) {
+      const chk=row.querySelector('.tt-chk');
+      chk.classList.add('done');
+      chk.style.animation='chkPop 0.15s ease-out';
+      row.style.background='rgba(80,200,80,.15)';
+      row.style.transition='background 0.15s';
+      setTimeout(()=>{
+        row.style.background='';
+        setTimeout(()=>{
+          row.style.transition='opacity 0.2s ease-out,transform 0.2s ease-out';
+          row.style.opacity='0';
+          row.style.transform='translateY(10px)';
+          setTimeout(()=>{ t.done=true; saveData(); renderAll(); },200);
+        },300);
+      },150);
+    } else { t.done=true; saveData(); renderAll(); }
   }
 
-  function selectDay(ds) {
-    selDate = PD(ds);
-    renderStrip();
-    renderTimeline('tlToday', selDate);
+  function toggleSub(parentId, subId) {
+    const t=tasks.find(x=>x.id===parentId); if(!t) return;
+    const s=t.subtasks.find(x=>x.id===subId);
+    if(s){ s.done=!s.done; saveData(); renderAll(); }
   }
 
-  // ===== TIMELINE =====
-  function renderTimeline(containerId, date) {
-    const el = document.getElementById(containerId);
-    const events = getEventsForDay(date);
-
-    // Also add task deadlines
-    const ds = F(date);
-    const deadlineTasks = tks.filter(t => t.due === ds && !t.done);
-
-    if (events.length === 0 && deadlineTasks.length === 0) {
-      el.innerHTML = '<div class="tl-empty">予定はありません</div>';
-      return;
-    }
-
-    let items = [...events.map(e=>({...e, _type:'ev'}))];
-    deadlineTasks.forEach(t => {
-      // only add deadline marker if not already an event
-      if (!items.find(i => i.title === t.title)) {
-        items.push({id:t.id, title:t.title+' (締切)', c:t.c, date:ds, s:t.dt||'23:59', e:null, _type:'deadline'});
+  function startAddSub(parentId, containerId) {
+    const container=document.getElementById(containerId); if(!container) return;
+    container.classList.add('open');
+    const inp=document.createElement('input');
+    inp.style.cssText='width:100%;height:48px;border:none;border-radius:16px;background:var(--bg0);font-size:16px;font-weight:500;color:var(--tx1);padding:0 16px;font-family:inherit;margin:4px 0;outline:none;display:block';
+    inp.placeholder='サブタスクを入力...';
+    const addBtn=container.querySelector('.add-sub-btn');
+    container.insertBefore(inp,addBtn);
+    inp.focus();
+    inp.addEventListener('keydown',e=>{
+      if(e.key==='Enter'&&inp.value.trim()){
+        const t=tasks.find(x=>x.id===parentId);
+        if(t){ t.subtasks.push({id:newId(),text:inp.value.trim(),done:false}); saveData(); renderAll(); }
       }
+      if(e.key==='Escape') inp.remove();
     });
-    items.sort((a,b)=>(a.s||'').localeCompare(b.s||''));
+    inp.addEventListener('blur',()=>setTimeout(()=>{ if(inp.parentNode) inp.remove(); },200));
+  }
 
-    el.innerHTML = items.map(ev => {
-      if (ev._type === 'deadline') {
-        return `
-          <div class="tb">
-            <div class="tb-time">${ev.s||''}</div>
-            <div class="tl-deadline c${ev.c}">
-              <div>
-                <div class="td-t">${esc(ev.title)}</div>
-              </div>
-            </div>
-          </div>`;
-      }
-      const dur = (ev.s && ev.e) ? TD(ev.s, ev.e) : '';
-      const timeRange = ev.e ? `${ev.s} — ${ev.e}` : ev.s;
-      return `
-        <div class="tb">
-          <div class="tb-time">${ev.s||''}</div>
-          <div class="tb-ev c${ev.c}">
-            <div class="tb-dot"></div>
-            <div class="tb-ev-body">
-              <div class="tb-ev-t">${esc(ev.title)}</div>
-              <div class="tb-ev-sub">${timeRange}</div>
-            </div>
-            ${dur ? `<div class="tb-dur">${dur}</div>` : ''}
+  // ===== SCHEDULE STRIP & TIMELINE =====
+  function renderStrip() {
+    const el=document.getElementById('strip');
+    const cells=[];
+    const catColors=['','#d4a020','#c86030','#509830','#2878b8','#8048a0'];
+    for(let i=-3;i<=14;i++) {
+      const d=new Date(TODAY); d.setDate(TODAY.getDate()+i);
+      const ds=fmt(d), isT=i===0, isSel=ds===fmt(selDate)&&!isT;
+      const evts=getEventsForDay(ds);
+      const dotColors=[...new Set(evts.map(e=>e.cat))].slice(0,3);
+      const dots=dotColors.map(c=>`<div class="sd-dot" style="background:${catColors[c]||'#888'}"></div>`).join('');
+      cells.push(`<div class="sd-cell${isT?' today-c':''}${isSel?' sel-c':''}" onclick="selectDate('${ds}')">
+        <div class="sd-dow">${DOW[d.getDay()]}</div>
+        <div class="sd-num">${d.getDate()}</div>
+        <div class="sd-dots">${dots}</div>
+      </div>`);
+    }
+    el.innerHTML=cells.join('');
+    const tc=el.querySelector('.today-c');
+    if(tc) tc.scrollIntoView({inline:'center',block:'nearest'});
+  }
+
+  function selectDate(ds) {
+    selDate=parseDate(ds);
+    renderStrip();
+    renderTimeline(ds);
+  }
+
+  function getEventsForDay(ds) {
+    const base=events.filter(e=>e.date===ds);
+    const baito=getBaitoForDay(parseDate(ds));
+    let all=[...base,...baito];
+    if(!settings.showBaito) all=all.filter(e=>e.cat!==1);
+    const seen=new Set();
+    return all.filter(e=>{
+      const k=e.title+e.start;
+      if(seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    }).sort((a,b)=>(a.start||'').localeCompare(b.start||''));
+  }
+
+  function getBaitoForDay(d) {
+    const ds=fmt(d), dw=d.getDay(), ov=shiftOverrides[ds];
+    if(ov?.type==='off') return [];
+    if(ov?.type==='change'||ov?.type==='add') return [{id:'bov-'+ds,title:'バイト',cat:1,date:ds,start:ov.start,end:ov.end}];
+    const df=defaultShifts.find(s=>s.dow===dw&&s.on);
+    if(df) return [{id:'bdf-'+ds,title:'バイト',cat:1,date:ds,start:df.start,end:df.end}];
+    return [];
+  }
+
+  function renderTimeline(ds) {
+    const el=document.getElementById('tlToday');
+    const evts=getEventsForDay(ds);
+    if(!evts.length){ el.innerHTML='<div class="tl-empty">予定なし</div>'; return; }
+    el.innerHTML=evts.map(ev=>`
+      <div class="tb">
+        <div class="tb-time">${ev.start||''}</div>
+        <div class="tb-ev c${ev.cat}">
+          <div class="tb-dot"></div>
+          <div>
+            <div class="tb-ev-t">${esc(ev.title)}</div>
+            <div class="tb-ev-sub">${ev.start||''}${ev.end?' — '+ev.end:''}</div>
           </div>
-        </div>`;
-    }).join('');
+          <div class="tb-dur">${durStr(ev.start,ev.end)}</div>
+        </div>
+      </div>`).join('');
   }
 
   // ===== TASKS TAB =====
-  let curFilterNum = 'all';
-
-  function setFilter(cat) {
-    curFilterNum = cat;
-    document.querySelectorAll('.filter-chip').forEach(c => {
-      c.classList.toggle('on', c.dataset.cat === cat);
-    });
+  function setFilter(f) {
+    curFilter=f;
+    document.querySelectorAll('.filter-chip').forEach(c=>c.classList.toggle('on',c.dataset.cat===f));
     renderTasksTab();
   }
 
   function renderTasksTab() {
-    const el = document.getElementById('tkList');
-    let pending = tks.filter(t => !t.done);
-    let done = tks.filter(t => t.done);
-
-    if (curFilterNum !== 'all') {
-      const cn = parseInt(curFilterNum);
-      pending = pending.filter(t => t.c === cn);
-      done = done.filter(t => t.c === cn);
-    }
-
-    pending.sort((a,b) => (a.due||'').localeCompare(b.due||''));
-
-    let html = '';
-
-    if (pending.length === 0) {
-      html += '<div class="empty-state" style="padding:24px 0;">タスクはありません</div>';
-    } else {
-      html += pending.map(t => renderTkCard(t)).join('');
-    }
-
-    // Done section
-    if (done.length > 0) {
-      html += `<div style="margin-top:8px;">
-        <button class="done-section-toggle" onclick="toggleDoneSection(this)">
-          <span>完了済み (${done.length})</span><span id="doneSectionArrow">∨</span>
-        </button>
-        <div id="doneSectionList" style="display:none;">${done.map(t=>renderTkCard(t,true)).join('')}</div>
-      </div>`;
-    }
-
-    el.innerHTML = html;
+    const el=document.getElementById('tkList');
+    let list=tasks.filter(t=>!t.done);
+    if(curFilter!=='all') list=list.filter(t=>String(t.cat)===curFilter);
+    list.sort((a,b)=>(a.due||'').localeCompare(b.due||''));
+    const doneList=tasks.filter(t=>t.done&&(curFilter==='all'||String(t.cat)===curFilter));
+    let html=list.map(t=>renderTkCard(t)).join('');
+    html+=`<div class="done-hdr" style="padding:16px 24px" onclick="toggleDoneTk()">
+      完了 (${doneList.length})
+      <svg id="doneTkCaret" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform 0.2s;${doneTkOpen?'transform:rotate(180deg)':''}"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="done-list${doneTkOpen?' open':''}" id="doneTkList">
+      ${doneList.map(t=>renderTkCard(t,true)).join('')}
+    </div>`;
+    el.innerHTML=html;
   }
 
-  function renderTkCard(t, isDone) {
-    const days = daysUntil(t.due||'9999-12-31');
-    const urg = !t.done && days <= urgThresh;
-    const dueDate = t.due ? PD(t.due) : null;
-    const badge = t.done ? '完了' : days === 0 ? '今日' : days < 0 ? '超過' : days+'日';
-    const hasSubs = t.subtasks && t.subtasks.length > 0;
-    const prog = hasSubs ? ` (${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length})` : '';
-    const catChips = Object.entries(CAT).map(([k,v]) =>
-      `<button class="detail-cat-chip${t.c==k?' on':''}" style="background:${v.color};" onclick="setTaskCat(${t.id},${k})">${v.name}</button>`
-    ).join('');
+  function toggleDoneTk() {
+    doneTkOpen=!doneTkOpen;
+    document.getElementById('doneTkList')?.classList.toggle('open',doneTkOpen);
+    const c=document.getElementById('doneTkCaret');
+    if(c) c.style.transform=doneTkOpen?'rotate(180deg)':'';
+  }
 
-    return `
-      <div class="tk-card c${t.c}${urg?' urg':''}${t.done?' done-card':''}" data-id="${t.id}" onclick="toggleTkCardDetail(this,event)">
-        <div class="tk-chk${t.done?' done':''}" onclick="event.stopPropagation();toggleTask(${t.id})"></div>
-        <div class="tk-body">
-          <div class="tk-title${t.done?' done-txt':''}">${esc(t.title)}${prog}</div>
-          <div class="tk-sub">${dueDate?FS(dueDate)+' ':''} ${t.dt||''} · ${CAT[t.c]?.name||''}</div>
+  function renderTkCard(t, isDone=false) {
+    const d=daysUntil(t.due);
+    const over=d<0, urg=!isDone&&!over&&d<=(t.urgentDays??2);
+    const badgeClass=over?'over':urg?'urg':'';
+    const badgeText=over?'超過':d+'日';
+    const prog=t.subtasks?.length?`<span class="prog">${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length}</span>`:'';
+    const subRows=(t.subtasks||[]).map(s=>`
+      <div class="sub-row">
+        <div class="sub-chk${s.done?' done':''}" onclick="toggleSub(${t.id},${s.id})"></div>
+        <div class="sub-title${s.done?' done':''}">${esc(s.text)}</div>
+      </div>`).join('');
+    return `<div class="tk-card c${t.cat}" data-id="${t.id}">
+      <div class="tk-main" onclick="toggleTkExpand(${t.id})">
+        <div class="tt-chk${t.done?' done':''} c${t.cat}" onclick="event.stopPropagation();doToggleTask(${t.id})"></div>
+        <div>
+          <div class="tt-title">${esc(t.title)} ${prog}</div>
+          <div class="tt-sub">${t.due?fmtDate(parseDate(t.due)):''} ${t.dueTime||''} · ${catName(t.cat)}</div>
         </div>
-        <div class="tk-badge${urg?' urg':''}">${badge}</div>
-        <div class="tk-detail" onclick="event.stopPropagation()">
-          <input class="detail-input" type="text" value="${esc(t.title)}" onchange="updateTaskTitle(${t.id},this.value)" placeholder="タイトル">
-          <div class="detail-row">
-            <input type="date" value="${t.due||''}" onchange="updateTaskDue(${t.id},this.value)">
-            <input type="time" value="${t.dt||'23:59'}" onchange="updateTaskDt(${t.id},this.value)">
-          </div>
-          <div class="detail-cats">${catChips}</div>
-          <textarea class="detail-memo" rows="2" placeholder="メモ" onchange="updateTaskMemo(${t.id},this.value)">${esc(t.memo||'')}</textarea>
-          ${hasSubs ? `
-          <div class="tk-subs">
-            ${t.subtasks.map(s=>`
-              <div class="tk-sub-row">
-                <div class="tk-sub-chk${s.done?' done':''}" onclick="toggleSubtask(${t.id},${s.id})"></div>
-                <div class="tk-sub-title${s.done?' done-txt':''}">${esc(s.title)}</div>
-              </div>`).join('')}
-          </div>` : ''}
-          <button class="tk-add-sub" onclick="addSubtask(${t.id})">+ サブタスク</button>
-          <div class="detail-actions" style="margin-top:8px;">
-            <button class="done-btn" onclick="toggleTask(${t.id})">${t.done?'未完了に':'完了'}</button>
-            <button class="del-btn" onclick="deleteTask(${t.id})">削除</button>
-            <button class="save-btn" onclick="saveTaskFromCard(${t.id},this)">保存</button>
-          </div>
-        </div>
-      </div>`;
+        <div class="tt-badge ${badgeClass}">${badgeText}</div>
+      </div>
+      <div class="tk-subs" id="tkS-${t.id}" style="padding:0 12px">
+        ${subRows}
+        <button class="add-sub-btn" onclick="startAddSub(${t.id},'tkS-${t.id}')">+ サブタスク</button>
+      </div>
+      <div class="tk-detail" id="tkD-${t.id}">
+        <div class="detail-sep"></div>
+        ${buildTaskDetailForm(t,'tk')}
+      </div>
+    </div>`;
   }
 
-  function toggleTkCardDetail(el, evt) {
-    if (evt && evt.target.closest('.tk-detail')) return;
-    el.classList.toggle('expanded');
-  }
-
-  function toggleDoneSection(btn) {
-    const list = document.getElementById('doneSectionList');
-    const arrow = document.getElementById('doneSectionArrow');
-    if (list.style.display === 'none') {
-      list.style.display = 'block';
-      if (arrow) arrow.textContent = '∧';
-    } else {
-      list.style.display = 'none';
-      if (arrow) arrow.textContent = '∨';
-    }
-  }
-
-  // ===== TASK ACTIONS =====
-  function toggleTask(id) {
-    const task = tks.find(t => t.id === id);
-    if (!task) return;
-
-    if (!task.done) {
-      // Animate then complete
-      const chkEls = document.querySelectorAll(`[data-id="${id}"] .tt-chk, [data-id="${id}"] .tk-chk`);
-      chkEls.forEach(chk => {
-        chk.classList.add('done');
-        chk.style.animation = 'chkPop 0.2s cubic-bezier(.34,1.56,.64,1)';
-      });
-
-      const rows = document.querySelectorAll(`[data-id="${id}"]`);
-      rows.forEach(row => {
-        row.style.background = 'rgba(80,200,80,.12)';
-        row.style.transition = 'background 0.15s';
-      });
-
-      setTimeout(() => {
-        rows.forEach(row => {
-          row.style.background = '';
-          row.style.transition = 'opacity 0.3s, transform 0.3s';
-          row.style.opacity = '0';
-          row.style.transform = 'translateY(8px)';
-        });
-        setTimeout(() => {
-          task.done = true;
-          saveData();
-          renderAll();
-        }, 300);
-      }, 400);
-    } else {
-      task.done = false;
-      saveData();
-      renderAll();
-    }
-  }
-
-  function toggleSubtask(parentId, subId) {
-    const task = tks.find(t => t.id === parentId);
-    if (!task) return;
-    const sub = task.subtasks.find(s => s.id === subId);
-    if (!sub) return;
-    sub.done = !sub.done;
-    saveData();
-    renderAll();
-  }
-
-  function addSubtask(parentId) {
-    const task = tks.find(t => t.id === parentId);
-    if (!task) return;
-    const title = prompt('サブタスク名を入力してください');
-    if (!title) return;
-    task.subtasks = task.subtasks || [];
-    task.subtasks.push({id: nid++, title: title.trim(), done: false});
-    saveData();
-    renderAll();
-  }
-
-  function deleteTask(id) {
-    if (!confirm('このタスクを削除しますか?')) return;
-    tks = tks.filter(t => t.id !== id);
-    saveData();
-    renderAll();
-  }
-
-  function updateTaskTitle(id, val) {
-    const t = tks.find(t => t.id === id);
-    if (t) { t.title = val; saveData(); }
-  }
-  function updateTaskDue(id, val) {
-    const t = tks.find(t => t.id === id);
-    if (t) { t.due = val; saveData(); renderAll(); }
-  }
-  function updateTaskDt(id, val) {
-    const t = tks.find(t => t.id === id);
-    if (t) { t.dt = val; saveData(); }
-  }
-  function updateTaskMemo(id, val) {
-    const t = tks.find(t => t.id === id);
-    if (t) { t.memo = val; saveData(); }
-  }
-  function setTaskCat(id, cat) {
-    const t = tks.find(t => t.id === id);
-    if (t) { t.c = parseInt(cat); saveData(); renderAll(); }
-  }
-  function saveTaskFromCard(id, btn) {
-    const card = btn.closest('.dl-card, .tk-card');
-    if (!card) return;
-    const titleInput = card.querySelector('.detail-input');
-    const dateInput = card.querySelector('input[type=date]');
-    const timeInput = card.querySelector('input[type=time]');
-    const memoInput = card.querySelector('.detail-memo');
-    const t = tks.find(t => t.id === id);
-    if (t) {
-      if (titleInput) t.title = titleInput.value;
-      if (dateInput) t.due = dateInput.value;
-      if (timeInput) t.dt = timeInput.value;
-      if (memoInput) t.memo = memoInput.value;
-      saveData();
-      renderAll();
-    }
+  function toggleTkExpand(id) {
+    document.getElementById('tkS-'+id)?.classList.toggle('open');
+    document.getElementById('tkD-'+id)?.classList.toggle('open');
   }
 
   // ===== BAITO TAB =====
   function renderBaito() {
-    renderDShList();
-    renderBtMonthNav();
-    renderBtCalendar();
-    renderBtSummary();
-    renderBtOvPanel();
-    renderTimeline('tlBaito', btSelDate);
-    const tlTitle = document.getElementById('btTlTitle');
-    if (tlTitle) tlTitle.textContent = FS(btSelDate) + 'のシフト';
+    renderBaitoShifts();
+    renderBaitoStats();
+    renderBaitoCal();
   }
 
-  function renderDShList() {
-    const el = document.getElementById('dShList');
-    if (!el) return;
-    if (dSh.length === 0) {
-      el.innerHTML = '<div class="empty-state">シフトなし</div>';
-      return;
-    }
-    el.innerHTML = dSh.map((s,i) => `
-      <div class="bt-shift-row">
-        <div class="bt-dow">${DW[s.dow]}</div>
-        <div class="bt-time">${s.s} 〜 ${s.e}</div>
-        <div class="toggle-sw${s.on?' on':''}" onclick="toggleDShift(${i})"></div>
-        <button onclick="removeDShift(${i})" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px;padding:0 4px;">×</button>
+  function renderBaitoShifts() {
+    const el=document.getElementById('shiftList');
+    el.innerHTML=defaultShifts.map((s,i)=>`
+      <div class="shift-row">
+        <div class="shift-dow">${DOW[s.dow]}</div>
+        <div class="shift-time">${s.start} — ${s.end}</div>
+        <button class="tog-sw${s.on?' on':''}" onclick="toggleShift(${i})"></button>
       </div>`).join('');
   }
 
-  function toggleDShift(i) {
-    dSh[i].on = !dSh[i].on;
-    saveData();
-    renderBaito();
-  }
+  function toggleShift(i) { defaultShifts[i].on=!defaultShifts[i].on; saveData(); renderBaito(); }
 
-  function removeDShift(i) {
-    dSh.splice(i, 1);
-    saveData();
-    renderBaito();
-  }
-
-  function openAddShift() {
-    const dows = ['日','月','火','水','木','金','土'];
-    const dowI = prompt('曜日を選択 (0=日, 1=月, 2=火, 3=水, 4=木, 5=金, 6=土)');
-    if (dowI === null) return;
-    const dow = parseInt(dowI);
-    if (isNaN(dow) || dow < 0 || dow > 6) return;
-    const start = prompt('開始時刻 (例: 18:00)', '18:00');
-    if (!start) return;
-    const end = prompt('終了時刻 (例: 22:00)', '22:00');
-    if (!end) return;
-    dSh.push({dow, s:start, e:end, on:true});
-    saveData();
-    renderBaito();
-  }
-
-  function renderBtMonthNav() {
-    const el = document.getElementById('btMonthT');
-    if (el) el.textContent = `${shMo.getFullYear()}年${shMo.getMonth()+1}月`;
-  }
-
-  function shiftMonth(dir) {
-    shMo = new Date(shMo.getFullYear(), shMo.getMonth() + dir, 1);
-    btSelDate = new Date(shMo.getFullYear(), shMo.getMonth(), 1);
-    renderBaito();
-  }
-
-  function renderBtCalendar() {
-    const el = document.getElementById('btCal');
-    if (!el) return;
-    const yr = shMo.getFullYear(), mo = shMo.getMonth();
-    const first = new Date(yr, mo, 1).getDay();
-    const last = new Date(yr, mo+1, 0).getDate();
-
-    const baitoEvs = buildBaitoEvs(mo, yr);
-
-    let html = DW.map(d=>`<div class="bt-cal-dow">${d}</div>`).join('');
-
-    // empty cells before first day
-    for (let i=0; i<first; i++) html += '<div></div>';
-
-    for (let d=1; d<=last; d++) {
-      const dt = new Date(yr, mo, d);
-      const ds = F(dt);
-      const isToday = SD(dt, T);
-      const isSel = SD(dt, btSelDate);
-      const ov = shOvs[ds];
-      const hasShift = baitoEvs.some(e=>e.date===ds);
-      const isOff = ov && ov.type === 'off';
-      let cls = 'bt-cal-day';
-      if (isToday) cls += ' today';
-      if (isSel) cls += ' sel';
-      if (hasShift && !isOff) cls += ' has-shift';
-      if (isOff) cls += ' off-ov';
-      const dot = hasShift && !isOff && !isSel ? '<div class="bt-cal-dot"></div>' : '';
-      html += `<div class="${cls}" onclick="selectBtDay('${ds}')">${d}${dot}</div>`;
-    }
-    el.innerHTML = html;
-  }
-
-  function renderBtSummary() {
-    const el = document.getElementById('btSummary');
-    if (!el) return;
-    const yr = shMo.getFullYear(), mo = shMo.getMonth();
-    const baitoEvs = buildBaitoEvs(mo, yr);
-    const shifts = baitoEvs.length;
-    let hours = 0;
-    baitoEvs.forEach(e => {
-      if (e.s && e.e) {
-        const [sh,sm]=e.s.split(':').map(Number);
-        let [eh,em]=e.e.split(':').map(Number);
-        if (eh > 24) eh = 24;
-        hours += (eh*60+em - sh*60-sm) / 60;
+  function renderBaitoStats() {
+    const el=document.getElementById('baitoStats');
+    const yr=baitoCalMo.getFullYear(), mo=baitoCalMo.getMonth();
+    const dm=new Date(yr,mo+1,0).getDate();
+    let days=0, mins=0;
+    for(let d=1;d<=dm;d++) {
+      const dt=new Date(yr,mo,d);
+      const evts=getBaitoForDay(dt);
+      if(evts.length){
+        days++;
+        evts.forEach(e=>{
+          if(e.start&&e.end){
+            const [sh,sm]=e.start.split(':').map(Number),[eh,em]=e.end.split(':').map(Number);
+            mins+=(eh*60+em)-(sh*60+sm);
+          }
+        });
       }
-    });
-    const wage = Math.round(hours * 1100); // estimated wage at 1100/h
-    el.innerHTML = `
-      <div class="bt-sum-item">
-        <div class="bt-sum-val">${shifts}</div>
-        <div class="bt-sum-lbl">出勤日数</div>
-      </div>
-      <div class="bt-sum-item">
-        <div class="bt-sum-val">${hours.toFixed(1)}</div>
-        <div class="bt-sum-lbl">時間</div>
+    }
+    const h=Math.floor(mins/60), m=mins%60;
+    el.innerHTML=`
+      <div><div class="stat-num">${days}</div><div class="stat-lbl">出勤日数</div></div>
+      <div><div class="stat-num">${h}h${m?m+'m':''}</div><div class="stat-lbl">合計時間</div></div>`;
+  }
+
+  function renderBaitoCal() {
+    const yr=baitoCalMo.getFullYear(), mo=baitoCalMo.getMonth();
+    document.getElementById('calMonth').textContent=`${yr}年${mo+1}月`;
+    const el=document.getElementById('calGrid');
+    const first=new Date(yr,mo,1).getDay(), dm=new Date(yr,mo+1,0).getDate();
+    let html=DOW.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+    for(let i=0;i<first;i++) html+=`<div class="cal-day other-mo"></div>`;
+    for(let d=1;d<=dm;d++) {
+      const dt=new Date(yr,mo,d), ds=fmt(dt);
+      const isT=fmt(dt)===fmt(TODAY), isSel=selBaitoDate===ds;
+      const hasBaito=getBaitoForDay(dt).length>0;
+      html+=`<div class="cal-day${isT?' today-d':''}${isSel&&!isT?' sel-d':''}" onclick="selectBaitoDate('${ds}')">
+        ${d}${hasBaito?'<div class="cal-day-dot"></div>':''}
       </div>`;
-  }
-
-  function selectBtDay(ds) {
-    btSelDate = PD(ds);
-    renderBtCalendar();
-    renderBtOvPanel();
-    renderTimeline('tlBaito', btSelDate);
-    const tlTitle = document.getElementById('btTlTitle');
-    if (tlTitle) tlTitle.textContent = FS(btSelDate) + 'のシフト';
-  }
-
-  function renderBtOvPanel() {
-    const el = document.getElementById('btOvPanel');
-    const title = document.getElementById('btOvT');
-    if (!el || !title) return;
-    el.style.display = 'block';
-    title.textContent = FS(btSelDate);
-
-    const ds = F(btSelDate);
-    const ov = shOvs[ds];
-
-    const btnNormal = document.getElementById('btOvNormal');
-    const btnOff = document.getElementById('btOvOff');
-    const btnAdd = document.getElementById('btOvAdd');
-    const timeRow = document.getElementById('btOvTime');
-
-    [btnNormal, btnOff, btnAdd].forEach(b=>b&&b.classList.remove('on'));
-
-    if (!ov) {
-      btnNormal && btnNormal.classList.add('on');
-      timeRow && (timeRow.style.display='none');
-    } else if (ov.type === 'off') {
-      btnOff && btnOff.classList.add('on');
-      timeRow && (timeRow.style.display='none');
-    } else if (ov.type === 'add') {
-      btnAdd && btnAdd.classList.add('on');
-      if (timeRow) {
-        timeRow.style.display = 'flex';
-        document.getElementById('btOvS').value = ov.s || '19:00';
-        document.getElementById('btOvE').value = ov.e || '23:00';
-      }
     }
+    el.innerHTML=html;
+    renderBaitoAction();
   }
 
-  function setOv(type) {
-    const ds = F(btSelDate);
-    if (type === 'normal') {
-      delete shOvs[ds];
-    } else if (type === 'off') {
-      shOvs[ds] = {type:'off'};
-    } else if (type === 'add') {
-      shOvs[ds] = {type:'add', s:'19:00', e:'23:00'};
+  function selectBaitoDate(ds) { selBaitoDate=ds; renderBaitoCal(); }
+  function prevBaitoMo() { baitoCalMo=new Date(baitoCalMo.getFullYear(),baitoCalMo.getMonth()-1,1); renderBaito(); }
+  function nextBaitoMo() { baitoCalMo=new Date(baitoCalMo.getFullYear(),baitoCalMo.getMonth()+1,1); renderBaito(); }
+
+  function renderBaitoAction() {
+    const el=document.getElementById('baitoAction');
+    if(!selBaitoDate){ el.style.display='none'; return; }
+    el.style.display='block';
+    const d=parseDate(selBaitoDate), dw=d.getDay();
+    const df=defaultShifts.find(s=>s.dow===dw&&s.on);
+    const ov=shiftOverrides[selBaitoDate];
+    const curType=ov?.type||(df?'normal':'none');
+    const showTime=curType==='change'||curType==='add';
+    el.innerHTML=`
+      <div class="baito-action-title">${fmtDate(d)}</div>
+      <div class="baito-action-btns">
+        ${df
+          ?`<button class="baito-act-btn${curType==='normal'?' on':''}" onclick="setBaitoOv('${selBaitoDate}','normal')">通常</button>
+            <button class="baito-act-btn${curType==='off'?' on':''}" onclick="setBaitoOv('${selBaitoDate}','off')">休み</button>
+            <button class="baito-act-btn${curType==='change'?' on':''}" onclick="setBaitoOv('${selBaitoDate}','change')">変更</button>`
+          :`<button class="baito-act-btn${curType==='add'?' on':''}" onclick="setBaitoOv('${selBaitoDate}','add')">追加</button>
+            <button class="baito-act-btn${curType==='off'?' on':''}" onclick="setBaitoOv('${selBaitoDate}','off')">なし</button>`
+        }
+      </div>
+      ${showTime?`<div class="time-inputs">
+        <input class="time-inp" type="time" id="bOvS" value="${ov?.start||(df?.start||'09:00')}" onchange="saveBaitoTime('${selBaitoDate}')">
+        <input class="time-inp" type="time" id="bOvE" value="${ov?.end||(df?.end||'17:00')}" onchange="saveBaitoTime('${selBaitoDate}')">
+      </div>`:''}
+    `;
+  }
+
+  function setBaitoOv(ds, type) {
+    if(type==='normal') delete shiftOverrides[ds];
+    else {
+      if(!shiftOverrides[ds]) shiftOverrides[ds]={type,start:'',end:''};
+      else shiftOverrides[ds].type=type;
     }
+    saveData(); renderBaito();
+  }
+  function saveBaitoTime(ds) {
+    const s=document.getElementById('bOvS'), e=document.getElementById('bOvE');
+    if(!shiftOverrides[ds]) shiftOverrides[ds]={type:'change',start:'',end:''};
+    if(s) shiftOverrides[ds].start=s.value;
+    if(e) shiftOverrides[ds].end=e.value;
     saveData();
-    renderBaito();
   }
 
-  function saveOv() {
-    const ds = F(btSelDate);
-    const s = document.getElementById('btOvS').value;
-    const e = document.getElementById('btOvE').value;
-    shOvs[ds] = {type:'add', s, e};
-    saveData();
-    renderBaito();
+  // ===== FIB =====
+  function openFib() {
+    if(fibOpen) return;
+    fibOpen=true;
+    const inp=document.getElementById('fibInput');
+    inp.removeAttribute('readonly');
+    document.getElementById('fibPanel').classList.add('open');
+    document.getElementById('fibBd').classList.add('active');
+    renderFibPanel();
+    setTimeout(()=>inp.focus(),50);
+  }
+  function closeFib() {
+    if(!fibOpen) return;
+    fibOpen=false;
+    document.getElementById('fibPanel').classList.remove('open');
+    document.getElementById('fibBd').classList.remove('active');
+    const inp=document.getElementById('fibInput');
+    inp.value='';
+    inp.setAttribute('readonly','');
+  }
+  function renderFibPanel() {
+    const cats=[1,2,3,4,5].map(c=>
+      `<button class="cat-chip c${c}${fibCat===c?' sel':''}" onclick="fibCat=${c};renderFibPanel()">${catName(c)}</button>`
+    ).join('');
+    const todayStr=fmt(TODAY);
+    const tomStr=fmt(new Date(TODAY.getTime()+864e5));
+    const datStr=fmt(new Date(TODAY.getTime()+2*864e5));
+    const dateBtns=[
+      [todayStr,'今日'],[tomStr,'明日'],[datStr,'明後日']
+    ].map(([ds,lbl])=>`<button class="fib-date-btn${fibDate===ds?' on':''}" onclick="fibDate='${ds}';renderFibPanel()">${lbl}</button>`).join('');
+    const isCustom=fibDate!==todayStr&&fibDate!==tomStr&&fibDate!==datStr;
+    document.getElementById('fibPanel').innerHTML=`
+      <div class="fib-cat-chips">${cats}</div>
+      <div class="fib-date-btns">
+        ${dateBtns}
+        <button class="fib-date-btn${isCustom?' on':''}" onclick="document.getElementById('fibDatePick').click()">指定</button>
+        <input type="date" id="fibDatePick" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0" value="${fibDate}" onchange="fibDate=this.value;renderFibPanel()">
+      </div>
+      <div class="fib-time-row">
+        <span class="fib-time-label">時刻</span>
+        <input class="fib-time-input" type="time" id="fibTime" value="23:59">
+      </div>
+      <div class="fib-type-row">
+        <button class="fib-type-btn${fibType==='task'?' on':''}" onclick="fibType='task';renderFibPanel()">タスク</button>
+        <button class="fib-type-btn${fibType==='event'?' on':''}" onclick="fibType='event';renderFibPanel()">予定</button>
+      </div>
+      <button class="fib-add-btn" onclick="submitFib()">追加</button>
+    `;
+  }
+  function submitFib() {
+    const title=document.getElementById('fibInput').value.trim(); if(!title) return;
+    const time=document.getElementById('fibTime')?.value||'23:59';
+    if(fibType==='task') tasks.push({id:newId(),title,cat:fibCat,due:fibDate,dueTime:time,done:false,subtasks:[],memo:'',urgentDays:2});
+    else events.push({id:newId(),title,cat:fibCat,date:fibDate,start:time,end:null});
+    saveData(); renderAll(); closeFib();
   }
 
   // ===== SETTINGS =====
   function openSettings() {
-    document.getElementById('sBg').classList.add('open');
+    document.getElementById('sBd').classList.add('open');
     document.getElementById('sPan').classList.add('open');
-    // Sync controls
-    document.getElementById('urgRange').value = urgThresh;
-    document.getElementById('urgVal').textContent = urgThresh;
-    document.getElementById('baitoToggle').classList.toggle('on', showBaito);
-    const savedTheme = localStorage.getItem('theme') || 'auto';
-    updateThemeButtons(savedTheme);
+    document.querySelectorAll('.s-theme-btn').forEach(b=>b.classList.toggle('on',b.dataset.mode===settings.theme));
+    document.getElementById('baitoTog').classList.toggle('on',settings.showBaito);
   }
-
   function closeSettings() {
-    document.getElementById('sBg').classList.remove('open');
+    document.getElementById('sBd').classList.remove('open');
     document.getElementById('sPan').classList.remove('open');
   }
-
-  function exportData() {
-    const data = {evs, tks, dSh, shOvs, urgThresh, showBaito};
-    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'dashboard-backup.json';
-    a.click(); URL.revokeObjectURL(url);
-  }
-
-  function resetData() {
-    if (!confirm('すべてのデータをリセットしますか? この操作は元に戻せません。')) return;
-    localStorage.clear();
-    loadData();
-    renderAll();
-    closeSettings();
-  }
-
-  // ===== TAB SWITCHING =====
-  function switchTab(tabName) {
-    const newIdx = tabOrder.indexOf(tabName);
-    if (newIdx === curTab) return;
-    const dir = newIdx > curTab ? 1 : -1;
-    const curPage = document.getElementById('p-' + tabOrder[curTab]);
-    const newPage = document.getElementById('p-' + tabName);
-
-    newPage.style.display = 'block';
-    newPage.style.transform = `translateX(${dir * 100}%)`;
-    newPage.style.opacity = '0';
-
-    newPage.getBoundingClientRect(); // force reflow
-
-    curPage.style.transform = `translateX(${-dir * 100}%)`;
-    curPage.style.opacity = '0';
-    newPage.style.transform = 'translateX(0)';
-    newPage.style.opacity = '1';
-
-    setTimeout(() => {
-      curPage.style.display = 'none';
-      curPage.style.transform = 'translateX(0)';
-      curPage.style.opacity = '1';
-    }, 310);
-
-    curTab = newIdx;
-
-    document.querySelectorAll('.nv').forEach(n => {
-      n.classList.toggle('on', n.dataset.tab === tabName);
-    });
-
-    const titles = {today:'今日', tasks:'タスク', baito:'バイト'};
-    document.getElementById('hT').textContent = titles[tabName];
-
-    // Re-render new tab content
-    if (tabName === 'tasks') renderTasksTab();
-    if (tabName === 'baito') renderBaito();
-    if (tabName === 'today') renderAll();
-  }
-
-  // ===== FLOATING INPUT BAR =====
-  function initFIB() {
-    // Build cat chips
-    const catRow = document.getElementById('fibCatRow');
-    catRow.innerHTML = Object.entries(CAT).map(([k,v])=>
-      `<button class="fib-cat-chip${fibCat==k?' on':''}" style="background:${v.color};" data-cat="${k}" onclick="fibSelectCat(${k})">${v.name}</button>`
-    ).join('');
-
-    const input = document.getElementById('fibInput');
-    input.addEventListener('focus', openFIBDetail);
-    input.addEventListener('keydown', e => { if(e.key==='Enter') submitFIB(); });
-
-    // Outside click closes FIB
-    document.addEventListener('click', e => {
-      const wrap = document.getElementById('fibWrap');
-      if (!wrap.contains(e.target)) closeFIBDetail();
-    });
-  }
-
-  function focusFIB() {
-    document.getElementById('fibInput').focus();
-    openFIBDetail();
-  }
-
-  function openFIBDetail() {
-    document.getElementById('fibDetail').classList.add('open');
-  }
-
-  function closeFIBDetail() {
-    document.getElementById('fibDetail').classList.remove('open');
-  }
-
-  function fibSelectCat(cat) {
-    fibCat = parseInt(cat);
-    document.querySelectorAll('.fib-cat-chip').forEach(c => {
-      c.classList.toggle('on', parseInt(c.dataset.cat) === fibCat);
-    });
-  }
-
-  function fibSetDate(mode, el) {
-    fibDateMode = mode;
-    if (mode === 'custom') {
-      fibCustomDate = el.value;
-    }
-    document.querySelectorAll('.fib-date-btn').forEach(b => b.classList.remove('on'));
-    if (mode !== 'custom') {
-      const btn = document.querySelector(`.fib-date-btn[data-d="${mode}"]`);
-      if (btn) btn.classList.add('on');
-    }
-  }
-
-  function fibSetType(type, el) {
-    fibType = type;
-    document.querySelectorAll('.fib-type-btn').forEach(b => b.classList.remove('on'));
-    el.classList.add('on');
-  }
-
-  function getFIBDate() {
-    if (fibDateMode === 'today') return F(T);
-    if (fibDateMode === 'tomorrow') {
-      const d = new Date(T); d.setDate(d.getDate()+1); return F(d);
-    }
-    if (fibDateMode === 'dayafter') {
-      const d = new Date(T); d.setDate(d.getDate()+2); return F(d);
-    }
-    if (fibDateMode === 'custom') return fibCustomDate || F(T);
-    return F(T);
-  }
-
-  function submitFIB() {
-    const input = document.getElementById('fibInput');
-    const title = input.value.trim();
-    if (!title) return;
-
-    const date = getFIBDate();
-    const time = document.getElementById('fibTime').value || '23:59';
-
-    if (fibType === 'task') {
-      tks.push({
-        id: nid++,
-        title,
-        c: fibCat,
-        due: date,
-        dt: time,
-        done: false,
-        subtasks: [],
-        memo: ''
-      });
-    } else {
-      evs.push({
-        id: nid++,
-        title,
-        c: fibCat,
-        date,
-        s: time,
-        e: null
-      });
-    }
-
-    saveData();
-    input.value = '';
-    closeFIBDetail();
-    input.blur();
-    renderAll();
-  }
-
-  // ===== UTILITIES =====
-  function esc(s) {
-    if (!s) return '';
-    return String(s)
-      .replace(/&/g,'&amp;')
-      .replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;');
+  function setTheme(m) { applyTheme(m); }
+  function toggleBaitoSetting() {
+    settings.showBaito=!settings.showBaito; saveData(); renderAll();
+    document.getElementById('baitoTog').classList.toggle('on',settings.showBaito);
   }
 
   // ===== INIT =====
-  (function init() {
+  (function init(){
     loadData();
     initTheme();
-    renderHeader();
-    renderAll();
-    initFIB();
+    document.getElementById('hdrDate').textContent=fmtDate(TODAY);
+    const dlWrap=document.getElementById('dlWrap');
+    dlWrap.style.transition='max-height 0.2s ease-out';
+    dlWrap.style.overflow='hidden';
+    dlWrap.style.maxHeight='2000px';
+    renderDeadlines();
+    renderTodayTasks();
+    renderStrip();
+    renderTimeline(fmt(TODAY));
+    document.getElementById('fibInput').setAttribute('readonly','');
+    window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{
+      if(settings.theme==='auto') applyTheme('auto');
+    });
   })();
   </script>
 </body>
