@@ -16,15 +16,13 @@
   --card: #f2f2f2;
   --tx: #000;
   --sub: #999;
-  --urg: #c82020;
-  --urg-bg: rgba(200,32,32,.12);
+  --red: #c82020;
 }
 [data-t="dark"] {
   --bg: #000;
   --card: #1a1a1c;
   --tx: #fff;
   --sub: #777;
-  --urg-bg: rgba(200,32,32,.22);
 }
 html, body { background: var(--bg); }
 body {
@@ -35,6 +33,7 @@ body {
   max-width: 430px;
   margin: 0 auto;
   min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
 }
 
 .c1 { --cc: #c89820; }
@@ -48,15 +47,15 @@ body {
 [data-t="dark"] .c4 { --cc: #3090d0; }
 [data-t="dark"] .c5 { --cc: #9858c0; }
 
-button:active, .card:active, .tt-row:active, .sd-cell:active { opacity: .5; }
+button:active, .card:active, .tt-row:active, .sd-cell:active { opacity: .6; }
 
 .hdr {
   position: sticky; top: 0; z-index: 40;
   background: var(--bg);
-  padding: 48px 20px 12px;
+  padding: 44px 20px 12px;
   display: flex; justify-content: space-between; align-items: flex-end;
 }
-.hdr-date { font-size: 13px; font-weight: 500; color: var(--sub); }
+.hdr-date { font-size: 13px; font-weight: 500; color: var(--tx); }
 .hdr-title { font-size: 28px; font-weight: 700; }
 
 .icon-btn {
@@ -77,22 +76,27 @@ button:active, .card:active, .tt-row:active, .sd-cell:active { opacity: .5; }
   display: flex; align-items: center; justify-content: center; color: var(--sub);
 }
 
+/* --- DEADLINE CARDS --- */
 .dl-list { display: flex; flex-direction: column; gap: 6px; }
 .dl-card {
   background: var(--card); border-radius: 12px;
-  border-left: 4px solid var(--cc); overflow: hidden; cursor: pointer;
+  overflow: hidden; cursor: pointer; position: relative;
 }
-.dl-card.urg { background: var(--urg-bg); }
+.dl-card.over { border: 2px solid var(--red); }
+.dl-dot {
+  position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+  width: 8px; height: 8px; border-radius: 50%; background: var(--cc);
+  pointer-events: none;
+}
 .dl-main {
   display: grid; grid-template-columns: 52px 1fr auto;
   align-items: center; gap: 10px;
-  padding: 10px 12px 10px 8px;
+  padding: 10px 12px 10px 22px;
 }
 .dl-days { display: block; font-size: 22px; font-weight: 700; color: var(--cc); line-height: 1.1; text-align: center; }
 .dl-unit { display: block; font-size: 11px; font-weight: 500; color: var(--sub); text-align: center; }
-.dl-title { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
-.dl-meta { font-size: 13px; font-weight: 500; color: var(--sub); }
-.dl-time { opacity: 0.6; }
+.dl-title { font-size: 15px; font-weight: 700; }
+.dl-meta { font-size: 13px; font-weight: 500; color: var(--sub); margin-top: 2px; }
 
 .accordion { max-height: 0; overflow: hidden; transition: max-height 0.2s ease-out; }
 .accordion.open { max-height: 600px; }
@@ -111,7 +115,7 @@ button:active, .card:active, .tt-row:active, .sd-cell:active { opacity: .5; }
 .urg-row { margin-bottom: 6px; }
 .urg-lbl { font-size: 11px; font-weight: 500; color: var(--sub); display: flex; justify-content: space-between; margin-bottom: 4px; }
 input[type="range"] { width: 100%; accent-color: var(--tx); }
-.del-btn { width: 100%; height: 36px; border-radius: 12px; background: none; border: none; cursor: pointer; font-size: 15px; font-weight: 700; color: var(--urg); font-family: inherit; }
+.del-btn { width: 100%; height: 36px; border-radius: 12px; background: none; border: none; cursor: pointer; font-size: 15px; font-weight: 700; color: var(--red); font-family: inherit; }
 
 .cat-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
 .cat-chip {
@@ -120,7 +124,12 @@ input[type="range"] { width: 100%; accent-color: var(--tx); }
   cursor: pointer; font-family: inherit; opacity: .35;
 }
 .cat-chip.sel { opacity: 1; border-color: var(--tx); }
+.cat-tag {
+  padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;
+  background: var(--cc); color: #fff; flex-shrink: 0;
+}
 
+/* --- TODAY TASK ROWS --- */
 .tt-row {
   display: grid; grid-template-columns: 34px 1fr auto;
   align-items: center; gap: 8px;
@@ -141,14 +150,14 @@ input[type="range"] { width: 100%; accent-color: var(--tx); }
   transform: rotate(-45deg) translateY(-1px);
 }
 .tt-title { font-size: 15px; font-weight: 500; }
-.tt-sub { font-size: 11px; font-weight: 500; color: var(--sub); margin-top: 1px; }
+.tt-sub { font-size: 11px; font-weight: 500; color: var(--sub); margin-top: 2px; }
 .tt-badge {
   font-size: 11px; font-weight: 700;
   background: var(--card); color: var(--sub);
   padding: 3px 8px; border-radius: 6px; white-space: nowrap; flex-shrink: 0;
 }
-.tt-badge.urg { background: var(--urg-bg); color: var(--urg); }
-.tt-badge.over { background: var(--urg); color: #fff; }
+.tt-badge.urg { color: var(--red); background: var(--card); }
+.tt-badge.over { color: var(--red); font-weight: 700; background: var(--card); }
 
 .subs-area {
   max-height: 0; overflow: hidden;
@@ -176,11 +185,12 @@ input[type="range"] { width: 100%; accent-color: var(--tx); }
 .done-list.open { max-height: 2000px; }
 .done-row .tt-title { text-decoration: line-through; opacity: .5; }
 
+/* --- SCHEDULE STRIP --- */
 .strip-wrap { overflow-x: auto; scrollbar-width: none; padding: 0 20px 12px; }
 .strip-wrap::-webkit-scrollbar { display: none; }
 .strip { display: flex; gap: 6px; }
 .sd-cell {
-  min-width: 52px; flex-shrink: 0;
+  min-width: 46px; flex-shrink: 0;
   display: flex; flex-direction: column; align-items: center;
   padding: 8px 4px 10px; border-radius: 12px; cursor: pointer;
 }
@@ -194,33 +204,46 @@ input[type="range"] { width: 100%; accent-color: var(--tx); }
 .sd-dots { display: flex; gap: 2px; margin-top: 3px; height: 5px; align-items: center; }
 .sd-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
 
+/* --- TIMELINE --- */
 .tl { position: relative; padding: 0 20px; }
 .tl::before { content: ''; position: absolute; left: 28px; top: 0; bottom: 0; width: 1px; background: var(--card); }
 .tb { position: relative; padding: 0 0 12px 20px; }
 .tb-time { font-size: 11px; font-weight: 500; color: var(--sub); margin-bottom: 4px; }
 .tb-ev {
-  display: grid; grid-template-columns: 6px 1fr auto;
+  display: grid; grid-template-columns: 8px 1fr auto;
   align-items: center; gap: 8px;
   padding: 10px 12px; background: var(--card); border-radius: 12px;
 }
-.tb-dot { width: 6px; height: 6px; border-radius: 3px; background: var(--cc); flex-shrink: 0; }
+.tb-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cc); flex-shrink: 0; }
 .tb-ev-t { font-size: 13px; font-weight: 500; }
 .tb-ev-sub { font-size: 11px; font-weight: 500; color: var(--sub); margin-top: 1px; }
 .tb-dur { font-size: 11px; font-weight: 500; color: var(--sub); white-space: nowrap; }
 .tl-empty { font-size: 13px; font-weight: 500; color: var(--sub); padding: 12px 0; text-align: center; }
 
+/* --- FILTER CHIPS --- */
 .filter-row { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 0 20px 12px; }
 .filter-row::-webkit-scrollbar { display: none; }
 .f-chip { height: 32px; padding: 0 14px; border-radius: 16px; font-size: 13px; font-weight: 500; color: var(--sub); background: transparent; border: none; cursor: pointer; white-space: nowrap; font-family: inherit; flex-shrink: 0; }
 .f-chip.on { background: var(--card); color: var(--tx); font-weight: 700; }
 
-.tk-card { background: var(--card); border-radius: 12px; border-left: 4px solid var(--cc); margin: 0 20px 6px; overflow: hidden; cursor: pointer; }
-.tk-main { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 8px; padding: 10px 12px 10px 8px; }
+/* --- TASK CARDS (tasks tab) --- */
+.tk-card {
+  background: var(--card); border-radius: 12px;
+  margin: 0 20px 6px; overflow: hidden; cursor: pointer; position: relative;
+}
+.tk-card.over { border: 2px solid var(--red); }
+.tk-dot {
+  position: absolute; left: 9px; top: 18px;
+  width: 8px; height: 8px; border-radius: 50%; background: var(--cc);
+  pointer-events: none;
+}
+.tk-main { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 8px; padding: 10px 12px 10px 22px; }
 .tk-subs { max-height: 0; overflow: hidden; transition: max-height 0.2s ease-out; padding: 0 10px; }
 .tk-subs.open { max-height: 400px; padding-bottom: 6px; }
 .tk-detail { max-height: 0; overflow: hidden; transition: max-height 0.2s ease-out; padding: 0 10px; }
 .tk-detail.open { max-height: 600px; padding: 0 10px 12px; }
 
+/* --- BAITO --- */
 .b-card { background: var(--card); border-radius: 12px; margin: 0 20px 12px; padding: 10px 12px; }
 .shift-row { display: grid; grid-template-columns: 36px 1fr 60px; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--bg); }
 .shift-row:last-child { border-bottom: none; }
@@ -254,16 +277,50 @@ input[type="range"] { width: 100%; accent-color: var(--tx); }
 .t-inputs { display: flex; gap: 6px; margin-top: 6px; }
 .t-inp { flex: 1; height: 36px; border-radius: 12px; background: var(--bg); border: none; font-size: 15px; font-weight: 500; color: var(--tx); padding: 0 10px; font-family: inherit; outline: none; }
 
-.fib-outer { position: fixed; left: 0; right: 0; bottom: calc(60px + env(safe-area-inset-bottom)); z-index: 100; padding: 0 20px; }
-.fib-panel { background: var(--card); border-radius: 12px 12px 0 0; padding: 12px; transform: translateY(100%); transition: transform 0.2s ease-out, opacity 0.2s ease-out; opacity: 0; pointer-events: none; }
-.fib-panel.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
-.fib-bar { height: 44px; background: var(--card); border-radius: 12px; display: flex; align-items: center; gap: 10px; padding: 0 14px; cursor: pointer; position: relative; z-index: 1; }
-.fib-plus { color: var(--sub); display: flex; }
-.fib-plus svg { width: 18px; height: 18px; }
-#fibInput { flex: 1; background: none; border: none; outline: none; font-size: 15px; font-weight: 500; color: var(--tx); font-family: inherit; }
-#fibInput::placeholder { color: var(--sub); }
+/* --- FIB (Floating Input Bar) --- */
 .fib-bd { position: fixed; inset: 0; z-index: 90; display: none; }
 .fib-bd.active { display: block; }
+
+.fib-outer {
+  position: fixed; left: 0; right: 0; max-width: 430px; margin: 0 auto;
+  z-index: 100;
+  bottom: calc(56px + env(safe-area-inset-bottom));
+  padding: 0 20px;
+  transition: bottom 0.25s ease;
+}
+.fib-outer.open {
+  top: 0;
+  bottom: auto;
+  padding: max(12px, env(safe-area-inset-top, 12px)) 20px 0;
+  transition: none;
+}
+
+.fib-bar {
+  height: 44px; background: var(--card); border-radius: 12px;
+  display: flex; align-items: center; gap: 10px; padding: 0 14px;
+  cursor: pointer; position: relative; z-index: 1;
+}
+.fib-outer.open .fib-bar { cursor: default; }
+.fib-plus { color: var(--sub); display: flex; }
+.fib-plus svg { width: 18px; height: 18px; }
+#fibInput {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 15px; font-weight: 500; color: var(--tx); font-family: inherit;
+}
+#fibInput::placeholder { color: var(--sub); }
+
+.fib-panel {
+  background: var(--card); border-radius: 12px;
+  padding: 0; margin-top: 8px;
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.25s ease-out, opacity 0.2s ease-out;
+  opacity: 0; pointer-events: none;
+}
+.fib-outer.open .fib-panel {
+  max-height: 600px; opacity: 1; pointer-events: auto;
+  padding: 12px;
+}
+
 .fib-cat-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 8px; flex-wrap: nowrap; }
 .fib-cat-chips::-webkit-scrollbar { display: none; }
 .fib-date-row { display: flex; gap: 6px; margin-bottom: 8px; overflow-x: auto; scrollbar-width: none; }
@@ -273,12 +330,22 @@ input[type="range"] { width: 100%; accent-color: var(--tx); }
 .fib-time-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .fib-time-lbl { font-size: 11px; font-weight: 500; color: var(--sub); white-space: nowrap; }
 .fib-time-inp { flex: 1; height: 36px; border-radius: 12px; background: var(--bg); border: none; font-size: 15px; font-weight: 500; color: var(--tx); padding: 0 12px; font-family: inherit; outline: none; }
+.fib-urg-row { margin-bottom: 8px; }
+.fib-urg-lbl { font-size: 11px; font-weight: 500; color: var(--sub); display: flex; justify-content: space-between; margin-bottom: 4px; }
 .fib-type-row { display: flex; gap: 6px; margin-bottom: 8px; }
 .fib-type-btn { flex: 1; height: 36px; border-radius: 12px; background: var(--bg); border: none; cursor: pointer; font-size: 13px; font-weight: 700; color: var(--sub); font-family: inherit; }
 .fib-type-btn.on { background: var(--tx); color: var(--bg); }
 .fib-add-btn { width: 100%; height: 36px; border-radius: 12px; background: var(--tx); color: var(--bg); border: none; cursor: pointer; font-size: 15px; font-weight: 700; font-family: inherit; }
 
-.nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; display: flex; justify-content: space-around; align-items: center; background: var(--bg); border-top: 1px solid var(--card); padding: 4px 0; padding-bottom: calc(4px + env(safe-area-inset-bottom)); z-index: 50; }
+/* --- NAV --- */
+.nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px;
+  display: flex; justify-content: space-around; align-items: center;
+  background: var(--bg); border-top: 1px solid var(--card);
+  padding: 4px 0 calc(8px + env(safe-area-inset-bottom));
+  z-index: 50;
+}
 .nv { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 70px; min-height: 44px; justify-content: center; font-size: 11px; font-weight: 500; color: var(--sub); background: none; border: none; cursor: pointer; font-family: inherit; }
 .nv.on { color: var(--tx); font-weight: 700; }
 .nv svg { width: 22px; height: 22px; }
@@ -286,6 +353,7 @@ input[type="range"] { width: 100%; accent-color: var(--tx); }
 .nv.on .ico-off { display: none; }
 .nv.on .ico-on { display: block; }
 
+/* --- SETTINGS PANEL --- */
 .s-bg { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s ease-out; }
 .s-bg.open { opacity: 1; pointer-events: auto; }
 .s-pan { position: fixed; top: 0; right: -300px; width: 300px; height: 100%; background: var(--bg); z-index: 201; transition: right 0.2s ease-out; padding: 56px 20px 20px; overflow-y: auto; }
@@ -391,13 +459,13 @@ input[type="range"] { width: 100%; accent-color: var(--tx); }
 
 <!-- FIB -->
 <div class="fib-outer" id="fibOuter">
-  <div class="fib-panel" id="fibPanel"></div>
-  <div class="fib-bar" onclick="openFib()">
+  <div class="fib-bar" id="fibBar" onclick="openFib()">
     <span class="fib-plus">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
     </span>
     <input id="fibInput" type="text" placeholder="タスクや予定を追加..." readonly>
   </div>
+  <div class="fib-panel" id="fibPanel"></div>
 </div>
 
 <!-- Nav -->
@@ -492,7 +560,7 @@ let selBDate = null;
 let curFlt = 'all';
 let curTab = 'today';
 let dlOpen = true, doneOpen = false, doneTkOpen = false;
-let fibOpen = false, fibCat = 1, fibDate = fmt(TODAY), fibType = 'task';
+let fibOpen = false, fibCat = 1, fibDate = fmt(TODAY), fibType = 'task', fibUd = 2;
 
 function load() {
   tasks = JSON.parse(localStorage.getItem('tasks')||'null') ?? DEF_TASKS.map(t=>({...t,sub:[...(t.sub||[])]}));
@@ -520,38 +588,35 @@ function applyTheme(m) {
   document.querySelectorAll('.s-t-btn').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
 }
 
-// Tab switching
+// Tab switching — crossfade opacity 0.15s
 const TABS = ['today','tasks','baito'];
 let tabIdx = 0;
 function swTab(name, e) {
   if(e) e.stopPropagation();
   const ni = TABS.indexOf(name);
   if(ni===tabIdx) return;
-  const dir = ni>tabIdx ? 1 : -1;
   const cur = document.getElementById('pg-'+TABS[tabIdx]);
   const nxt = document.getElementById('pg-'+name);
   nxt.style.display='block';
   nxt.style.position='absolute';
-  nxt.style.top='0';
-  nxt.style.left='0';
-  nxt.style.width='100%';
-  nxt.style.transform=`translateX(${dir*100}%)`;
+  nxt.style.top='0'; nxt.style.left='0'; nxt.style.width='100%';
   nxt.style.opacity='0';
   nxt.style.transition='none';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    const T='transform 0.2s ease-out,opacity 0.2s ease-out';
+    const T='opacity 0.15s ease-out';
     cur.style.transition=T; nxt.style.transition=T;
-    cur.style.transform=`translateX(${-dir*100}%)`; cur.style.opacity='0';
-    nxt.style.transform='translateX(0)'; nxt.style.opacity='1';
+    cur.style.opacity='0';
+    nxt.style.opacity='1';
   }));
   setTimeout(()=>{
-    cur.style.display='none';
+    cur.style.display='none'; cur.style.opacity='';
     [cur,nxt].forEach(el=>{
-      el.style.transform=''; el.style.opacity=''; el.style.transition='';
-      el.style.position=''; el.style.top=''; el.style.left=''; el.style.width='';
+      el.style.transition=''; el.style.position='';
+      el.style.top=''; el.style.left=''; el.style.width='';
     });
+    nxt.style.opacity='';
     renderTab(name);
-  },220);
+  },160);
   tabIdx=ni; curTab=name;
   document.querySelectorAll('.nv').forEach(n=>n.classList.toggle('on',n.dataset.tab===name));
   document.getElementById('hdrTitle').textContent={today:'今日',tasks:'タスク',baito:'バイト'}[name];
@@ -585,20 +650,25 @@ function rDL() {
   }
   el.innerHTML=list.map(t=>{
     const d=dU(t.due), over=d<0, urg=!over&&d<=(t.ud??2);
-    const badge=over
-      ? `<span class="cat-chip c${t.c}" style="opacity:1;border-color:transparent;background:var(--urg)">超過</span>`
-      : `<span class="cat-chip c${t.c}" style="opacity:1;border-color:transparent">${cn(t.c)}</span>`;
-    return `<div class="dl-card c${t.c}${urg?' urg':''}" onclick="togDD(${t.id})">
+    // Days column: always show number for non-overdue; "!" for overdue
+    const daysCol = over
+      ? `<div style="text-align:center"><span style="font-size:22px;font-weight:700;color:var(--red);line-height:1.1">!</span><span style="display:block;font-size:11px;font-weight:700;color:var(--red)">超過</span></div>`
+      : `<div><span class="dl-days">${d}</span><span class="dl-unit">日</span></div>`;
+    // Date row: "!超過" red text at date position for overdue
+    const metaRow = over
+      ? `<div class="dl-meta"><span style="color:var(--red);font-weight:700">!超過</span><span style="color:var(--sub)"> ${t.dt||''}</span></div>`
+      : `<div class="dl-meta">${fmtD(parseD(t.due))} ${t.dt||''}</div>`;
+    // Category tag always shown
+    const catTag = `<span class="cat-tag c${t.c}">${cn(t.c)}</span>`;
+    return `<div class="dl-card c${t.c}${over?' over':''}" onclick="togDD(${t.id})">
+      <div class="dl-dot"></div>
       <div class="dl-main">
-        <div>
-          <span class="dl-days">${over?'!':d}</span>
-          <span class="dl-unit">${over?'超過':'日'}</span>
-        </div>
+        ${daysCol}
         <div>
           <div class="dl-title">${esc(t.title)}</div>
-          <div class="dl-meta"><span>${fmtD(parseD(t.due))}</span><span class="dl-time"> ${t.dt||''}</span></div>
+          ${metaRow}
         </div>
-        ${badge}
+        ${catTag}
       </div>
       <div class="accordion" id="dld-${t.id}">
         <div class="detail-panel">
@@ -625,7 +695,7 @@ function detForm(t) {
     <div class="cat-chips">${chips}</div>
     <textarea class="d-textarea" rows="3" placeholder="メモ" oninput="updT(${t.id},'memo',this.value)" onclick="event.stopPropagation()">${esc(t.memo||'')}</textarea>
     <div class="urg-row">
-      <div class="urg-lbl"><span>緊急表示</span><span id="ul-${t.id}">${t.ud??2}日前から</span></div>
+      <div class="urg-lbl"><span>緊急しきい値</span><span id="ul-${t.id}">${t.ud??2}日前から</span></div>
       <input type="range" min="1" max="7" value="${t.ud??2}" oninput="updT(${t.id},'ud',+this.value);document.getElementById('ul-${t.id}').textContent=this.value+'日前から'" onclick="event.stopPropagation()">
     </div>
     <button class="del-btn" onclick="event.stopPropagation();delT(${t.id})">削除</button>`;
@@ -664,13 +734,17 @@ function togDone(lid,cid) {
 
 function ttRow(t,isDone=false) {
   const d=dU(t.due), over=d<0, urg=!isDone&&!over&&d<=(t.ud??2);
-  const bCls=over?'over':urg?'urg':'', bTxt=over?'超過':d+'日';
+  const bCls=over?'over':urg?'urg':'';
+  const bTxt=over?'!超過':d+'日';
   const prog=t.sub?.length?` <span style="font-size:11px;color:var(--sub)">${t.sub.filter(s=>s.done).length}/${t.sub.length}</span>`:'';
   const subs=(t.sub||[]).map(s=>`<div class="sub-row"><div class="sub-chk${s.done?' done':''}" onclick="togSub(${t.id},${s.id})"></div><div class="sub-title${s.done?' done':''}">${esc(s.text)}</div></div>`).join('');
   return `
     <div class="tt-row c${t.c}${isDone?' done-row':''}" data-id="${t.id}" onclick="togTtExp(${t.id})">
       <div class="tt-chk${t.done?' done':''}" onclick="event.stopPropagation();doChk(${t.id})"></div>
-      <div><div class="tt-title">${esc(t.title)}${prog}</div><div class="tt-sub">${fmtD(parseD(t.due))} ${t.dt||''} · ${cn(t.c)}</div></div>
+      <div>
+        <div class="tt-title">${esc(t.title)}${prog}</div>
+        <div class="tt-sub">${fmtD(parseD(t.due))} ${t.dt||''} · ${cn(t.c)}</div>
+      </div>
       <div class="tt-badge ${bCls}">${bTxt}</div>
     </div>
     <div class="subs-area" id="sa-${t.id}">${subs}<button class="add-sub-btn" onclick="addSubStart(${t.id},'sa-${t.id}')">+ サブタスク</button></div>
@@ -691,15 +765,24 @@ function doChk(id) {
     const chk=row.querySelector('.tt-chk');
     chk.classList.add('done');
     chk.style.animation='chkPop 0.15s ease-out';
+    // Green flash
     row.style.background='rgba(60,180,60,.12)';
     row.style.transition='background 0.15s';
     setTimeout(()=>{
       row.style.background='';
       setTimeout(()=>{
-        row.style.transition='opacity 0.2s,transform 0.2s';
-        row.style.opacity='0';
-        row.style.transform='translateY(8px)';
-        setTimeout(()=>{ t.done=true; save(); renderAll(); },200);
+        // Fadeout + collapse
+        const h=row.offsetHeight;
+        row.style.overflow='hidden';
+        row.style.maxHeight=h+'px';
+        row.style.transition='opacity 0.2s ease-out, max-height 0.25s ease-out, padding 0.25s ease-out, margin 0.25s ease-out';
+        requestAnimationFrame(()=>{
+          row.style.opacity='0';
+          row.style.maxHeight='0';
+          row.style.paddingTop='0';
+          row.style.paddingBottom='0';
+        });
+        setTimeout(()=>{ t.done=true; save(); renderAll(); },250);
       },300);
     },150);
   } else {
@@ -825,13 +908,18 @@ function togTkDone() {
 
 function tkCard(t,isDone=false) {
   const d=dU(t.due), over=d<0, urg=!isDone&&!over&&d<=(t.ud??2);
-  const bCls=over?'over':urg?'urg':'', bTxt=over?'超過':d+'日';
+  const bCls=over?'over':urg?'urg':'';
+  const bTxt=over?'!超過':d+'日';
   const prog=t.sub?.length?` <span style="font-size:11px;color:var(--sub)">${t.sub.filter(s=>s.done).length}/${t.sub.length}</span>`:'';
   const subs=(t.sub||[]).map(s=>`<div class="sub-row"><div class="sub-chk${s.done?' done':''}" onclick="togSub(${t.id},${s.id})"></div><div class="sub-title${s.done?' done':''}">${esc(s.text)}</div></div>`).join('');
-  return `<div class="tk-card c${t.c}" data-id="${t.id}">
+  return `<div class="tk-card c${t.c}${over?' over':''}" data-id="${t.id}">
+    <div class="tk-dot"></div>
     <div class="tk-main" onclick="togTkExp(${t.id})">
       <div class="tt-chk${t.done?' done':''}" onclick="event.stopPropagation();doChk(${t.id})"></div>
-      <div><div class="tt-title">${esc(t.title)}${prog}</div><div class="tt-sub">${t.due?fmtD(parseD(t.due)):''} ${t.dt||''} · ${cn(t.c)}</div></div>
+      <div>
+        <div class="tt-title">${esc(t.title)}${prog}</div>
+        <div class="tt-sub">${t.due?fmtD(parseD(t.due)):''} ${t.dt||''} · ${cn(t.c)}</div>
+      </div>
       <div class="tt-badge ${bCls}">${bTxt}</div>
     </div>
     <div class="tk-subs" id="tks-${t.id}">${subs}<button class="add-sub-btn" onclick="addSubStart(${t.id},'tks-${t.id}')">+ サブタスク</button></div>
@@ -928,7 +1016,7 @@ function openFib(){
   if(fibOpen) return;
   fibOpen=true;
   document.getElementById('fibInput').removeAttribute('readonly');
-  document.getElementById('fibPanel').classList.add('open');
+  document.getElementById('fibOuter').classList.add('open');
   document.getElementById('fibBd').classList.add('active');
   rFibPanel();
   setTimeout(()=>document.getElementById('fibInput').focus(),50);
@@ -936,7 +1024,7 @@ function openFib(){
 function closeFib(){
   if(!fibOpen) return;
   fibOpen=false;
-  document.getElementById('fibPanel').classList.remove('open');
+  document.getElementById('fibOuter').classList.remove('open');
   document.getElementById('fibBd').classList.remove('active');
   document.getElementById('fibInput').value='';
   document.getElementById('fibInput').setAttribute('readonly','');
@@ -950,6 +1038,10 @@ function rFibPanel(){
     <div class="fib-cat-chips">${cats}</div>
     <div class="fib-date-row">${dbs}<button class="fib-date-btn${isCustom?' on':''}" onclick="document.getElementById('fdp').click()">指定</button><input type="date" id="fdp" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0" value="${fibDate}" onchange="fibDate=this.value;rFibPanel()"></div>
     <div class="fib-time-row"><span class="fib-time-lbl">時刻</span><input class="fib-time-inp" type="time" id="fibTm" value="23:59"></div>
+    <div class="fib-urg-row">
+      <div class="fib-urg-lbl"><span>緊急しきい値</span><span id="fibUdLbl">${fibUd}日前から</span></div>
+      <input type="range" min="1" max="7" value="${fibUd}" oninput="fibUd=+this.value;document.getElementById('fibUdLbl').textContent=this.value+'日前から'">
+    </div>
     <div class="fib-type-row"><button class="fib-type-btn${fibType==='task'?' on':''}" onclick="fibType='task';rFibPanel()">タスク</button><button class="fib-type-btn${fibType==='event'?' on':''}" onclick="fibType='event';rFibPanel()">予定</button></div>
     <button class="fib-add-btn" onclick="submitFib()">追加</button>`;
 }
@@ -957,7 +1049,7 @@ function submitFib(){
   const title=document.getElementById('fibInput').value.trim();
   if(!title) return;
   const tm=document.getElementById('fibTm')?.value||'23:59';
-  if(fibType==='task') tasks.push({id:newId(),title,c:fibCat,due:fibDate,dt:tm,done:false,sub:[],memo:'',ud:2});
+  if(fibType==='task') tasks.push({id:newId(),title,c:fibCat,due:fibDate,dt:tm,done:false,sub:[],memo:'',ud:fibUd});
   else events.push({id:newId(),title,c:fibCat,date:fibDate,s:tm,e:null});
   save(); renderAll(); closeFib();
 }
